@@ -1,0 +1,12 @@
+{	
+	"Designer" : "../designer",
+	"OpenGm" : 1,
+	"TW_GooglePayPubKey" : "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjMBHWrAZ5NSsAbIbq5/MxTqunp3V/J1TXJSZfckBWbpx75TzXVL0lWWMrYUDhEscucsTQGW7POJ7foJqhLgHg71Mn0vNVwGow7b1x1mwJkRYsxSA3lqdqZUum2vjpQQF7nM0oddap+n/fI4IJD5FqwhHSAw0il8Xgb9l+NgHMbNl5CBC5FC93UkhrpLOR9pgJjnj0Xx73pn70XPAVOtbOIufJfk4txV0teVIc19Jvn9g7lbZVLyCIj87P9tcJ2Aigaklj1ldRQGJnoVXEgKtzHg8ikF9Sw9pmuXOV/mDwdw4UnbFinQlFHU56lXsNMvDCKi1EmEghFVlmrfjQVKSrQIDAQAB",
+	"OpenGemBuy" : 1,
+	"OpenTrophyAdd" : 0,
+	"TW_3PaySecretKey" : "0a9225e8c6fdef2ee91b537ac6c1b047",
+	"IosPayTest" : 1,
+	"TXAppId" : 1000000388,
+	"TXAppKey" : "FMhhySdQGwROAOwF",
+	"TXLoginUrl" : "http://opensdktest.tencent.com"
+}

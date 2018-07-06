@@ -1,0 +1,26 @@
+{
+	"comment1": "请配置logserver的内网ip地址:8820",
+	"LogHost" : "127.0.0.1:8820",
+	"DebugHost" : "127.0.0.1:5820",
+        "GcTime" : 15,
+	
+	"host" : "127.0.0.1",
+	"port" : 3306,
+	"user" : "root",
+	"pass" : "ppedbs",
+	"dbname" : "dpsglog",
+	"charset" : "latin1"
+
+	"maincache": {
+		"host": "127.0.0.1",
+		"port": 6379,
+		"index": 15,
+		"pool": 100
+	},
+	"clancache": {
+		"host": "127.0.0.1",
+		"port": 6379,
+		"index": 14,
+		"pool": 100
+	}
+}

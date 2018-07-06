@@ -1,0 +1,33 @@
+syntax = "proto2";
+package rpc;
+
+message Rpc{
+	repeated Request request = 1;
+}
+
+message Request{
+	required string method = 1;
+	optional bytes serialized_request = 2;
+}
+
+message Msg{
+	optional string code = 1;
+	optional string text = 2;
+}
+
+message SyncError{
+	optional string text = 1;
+}
+ 
+message RpcErrorResponse{
+	required string method = 1;
+	required string text = 2;
+}
+
+message Login{
+	required uint64 uid = 1;
+}
+
+message LoginRsp{
+	required uint64 uid = 1;
+}

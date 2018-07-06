@@ -1,13 +1,51 @@
 package common
 
 //"rpc"
+import (
+	//"csvcfg"
+	"jscfg"
+	"logger"
+	"os"
+	"path"
+	//	"strings"
+)
 
 //gateserver配置
 type LobbyServerCfg struct {
-	GsIpForClient string
-	GsIpForServer string
-	DebugHost     string
-	GcTime        uint8
+	LobbyIpForClient string
+	LobbyIpForServer string
+	DebugHost        string
+	GcTime           uint8
+
+	MainCacheProfile CacheConfig `json:"maincache"`
+	ClanCacheProfile CacheConfig `json:"clancache"`
+	//add for update rankresult
+	UpdateTime string
+}
+
+//logserver配置
+type LogServerCfg struct {
+	LogHost   string
+	Host      string
+	Port      uint16
+	User      string
+	Pass      string
+	Dbname    string
+	Charset   string
+	DebugHost string
+	GcTime    uint8
+}
+
+//log
+func ReadLogConfig(cfg *LogServerCfg) error {
+	cfgpath, _ := os.Getwd()
+
+	if err := jscfg.ReadJson(path.Join(cfgpath, "lgscfg.json"), cfg); err != nil {
+		logger.Fatal("read chat config failed, %v", err)
+		return err
+	}
+
+	return nil
 }
 
 /*

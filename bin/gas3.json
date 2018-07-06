@@ -1,0 +1,12 @@
+{
+	"comment1": "请配置cnserver的外网ip地址:7900",
+	"CnsHost" : "0.0.0.0:7902",
+	"CnsHostForClient": "127.0.0.1:7902",
+	"DebugHost" : "127.0.0.1:5900",
+    "GcTime" : 15,
+	
+	"comment2": "请配置cnserver的内网ip地址:8900",
+	"CnsForCenter" : "127.0.0.1:8900",
+	
+	"FsHost":[ "127.0.0.1:8910"]
+}

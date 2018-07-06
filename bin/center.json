@@ -1,0 +1,23 @@
+{	
+	"comment2"   : "center的内网ip地址:8860",
+	"CenterHost" : "127.0.0.1:8860",
+	"CenterForGm" : "127.0.0.1:6860",
+	"DebugHost" : "127.0.0.1:5860",
+    "GcTime" : 15,
+	
+	"center的更新时间" : "每两个小时更新一次，执行单位为小时",
+	"UpdateTime" : "2",
+	
+	"maincache": {
+		"host": "127.0.0.1",
+		"port": 6379,
+		"index": 15,
+		"pool": 100
+	},
+	"clancache": {
+		"host": "127.0.0.1",
+		"port": 6379,
+		"index": 14,
+		"pool": 100
+	}
+}

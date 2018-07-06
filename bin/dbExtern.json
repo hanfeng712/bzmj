@@ -1,0 +1,124 @@
+{
+  "DBHost" : "127.0.0.1:8801",
+  "DebugHost" : "127.0.0.1:5801",
+  "GcTime" : 15,
+  "cache" : {
+    "main" : [
+      {
+        "host" : "127.0.0.1",
+        "index" : 0,
+        "vnode" : 3,
+        "nodename": "main-cache1",
+        "pool" : 100,
+        "port" : 6379
+      },
+      {
+        "host" : "127.0.0.1",
+        "index" : 1,
+        "vnode" : 3,
+        "nodename": "main-cache2",
+        "pool" : 100,
+        "port" : 6379
+      }
+    ]
+  },
+  "comment1" : "请配置dbserver的内网ip地址:8800",
+  "database" : {
+    "main" : [
+      {
+        "charset" : "utf8",
+        "dbname" : "dbtest1",
+        "host" : "127.0.0.1",
+        "vnode" : 3,
+        "nodename": "main-db1",
+        "pass" : "ppedbs",
+        "pool" : 16,
+        "port" : 3306,
+        "uname" : "root"
+      },
+      {
+        "charset" : "utf8",
+        "dbname" : "dbtest2",
+        "host" : "127.0.0.1",
+        "pass" : "ppedbs",
+        "vnode" : 3,
+        "nodename": "main-db2",
+        "pool" : 16,
+        "port" : 3306,
+        "uname" : "root"
+      }
+    ]
+  },
+  "tables" : {
+    "attacklog" : {
+      "cache-profile" : "main",
+      "db-profile" : "main",
+      "expiry" : 0
+    },
+    "battlelog" : {
+      "cache-profile" : "main",
+      "db-profile" : "main",
+      "expiry" : 0
+    },
+    "donate" : {
+      "cache-profile" : "main",
+      "db-profile" : "main",
+      "expiry" : 0
+    },
+    "friendexecise" : {
+      "cache-profile" : "main",
+      "db-profile" : "main",
+      "expiry" : 0
+    },
+    "friendexeciselog" : {
+      "cache-profile" : "main",
+      "db-profile" : "main",
+      "expiry" : 0
+    },
+    "friends" : {
+      "cache-profile" : "main",
+      "db-profile" : "main",
+      "expiry" : 0
+    },
+     "playerextra" : {
+      "cache-profile" : "main",
+      "db-profile" : "main",
+      "expiry" : 0
+    },
+    "playermail" : {
+      "cache-profile" : "main",
+      "db-profile" : "main",
+      "expiry" : 0
+    },
+    "pve" : {
+      "cache-profile" : "main",
+      "db-profile" : "main",
+      "expiry" : 0
+    },
+    "replay" : {
+      "cache-profile" : "main",
+      "db-profile" : "main",
+      "expiry" : 0
+    },
+    "village" : {
+      "cache-profile" : "main",
+      "db-profile" : "main",
+      "expiry" : 0
+    },
+    "normalchallenge" : {
+      "cache-profile" : "main",
+      "db-profile" : "main",
+      "expiry" : 0
+    },
+    "moneychallenge" : {
+      "cache-profile" : "main",
+      "db-profile" : "main",
+      "expiry" : 0
+    },
+     "playerchallengeinfo" : {
+      "cache-profile" : "main",
+      "db-profile" : "main",
+      "expiry" : 0
+    }
+  }
+}

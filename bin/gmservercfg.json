@@ -1,0 +1,4 @@
+{
+	"comment1" : "gmserver的监听ip地址:1002",
+	"GmServerIp" : "0.0.0.0:8880"
+}

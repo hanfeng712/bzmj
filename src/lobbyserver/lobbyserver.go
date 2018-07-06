@@ -22,19 +22,20 @@ type serverInfo struct {
 
 type LobbyServices struct {
 	l            sync.RWMutex
-	lgs          *rpcplus.Client			//日志服务器的连接段
-	m            map[uint32]serverInfo		//维护每个节点服务器的在线人数
-	cnss         []*rpcplus.Client			//维护对每个节点的连接
+	lgs          *rpcplus.Client       //日志服务器的连接段
+	m            map[uint32]serverInfo //维护每个节点服务器的在线人数
+	cnss         []*rpcplus.Client     //维护对每个节点的连接
 	maincache    *common.CachePool
 	clancache    *common.CachePool
-	stableServer string						//在线人数最小的节点服务器
+	stableServer string //在线人数最小的节点服务器
 }
 
 var lobbyService *LobbyServices
+
 //创建大厅对象
-func NewLobbyServer(cfg common.LobbyConfig) (server *LobbyService){
+func NewLobbyServer(cfg common.LobbyServerCfg) (server *LobbyServices) {
 	//数据库服务
-	dbclient.Init()
+	//dbclient.Init()
 	var logCfg common.LogServerCfg
 	if err := common.ReadLogConfig(&logCfg); err != nil {
 		logger.Fatal("%v", err)
@@ -43,23 +44,26 @@ func NewLobbyServer(cfg common.LobbyConfig) (server *LobbyService){
 	if err != nil {
 		logger.Fatal("connect logserver failed %s", err.Error())
 	}
-	lobbyService = &LobbyServices{
-		lgs:      rpcplus.NewClient(logConn),
-		cnss:     make([]*rpcplus.Client, 0, 1),
-		m: make(map[uint32]serverInfo),
+	server = &LobbyServices{
+		lgs:  rpcplus.NewClient(logConn),
+		cnss: make([]*rpcplus.Client, 0, 1),
+		m:    make(map[uint32]serverInfo),
 	}
 	//初始化cache
-	lobbyService.Info("Init Cache %v", cfg.MainCacheProfile)
-	lobbyService.maincache = common.NewCachePool(cfg.MainCacheProfile)
+	logger.Info("Init Cache %v", cfg.MainCacheProfile)
+	server.maincache = common.NewCachePool(cfg.MainCacheProfile)
 
 	logger.Info("Init Cache %v", cfg.ClanCacheProfile)
 	server.clancache = common.NewCachePool(cfg.ClanCacheProfile)
+
+	return server
 }
+
 //创建其他节点服务器连接服务器
 var pLobbyServices *LobbyServices
 
-func CreateLobbyServicesForCnserver(listener net.Listener) *LobbyServices {
-	pLobbyServices = &LobbyServices{m: make(map[uint32]serverInfo)}
+func CreateLobbyServicesForCnserver(server *LobbyServices, listener net.Listener) *LobbyServices {
+	pLobbyServices = server
 	rpcServer := rpcplus.NewServer()
 
 	rpcServer.Register(pLobbyServices)
@@ -80,7 +84,6 @@ func CreateLobbyServicesForCnserver(listener net.Listener) *LobbyServices {
 			pLobbyServices.l.Lock()
 			pLobbyServices.m[uConnId] = serverInfo{0, ""}
 			pLobbyServices.l.Unlock()
-
 
 			rpcServer.ServeConnWithContext(conn, uConnId)
 

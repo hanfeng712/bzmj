@@ -1,0 +1,7 @@
+{
+	"comment1"      : "请配置chatserver的外网ip地址:8801",
+    "gsIpForServer" : "127.0.0.1:8850",
+	"gsIpForClient" : "0.0.0.0:7850",
+	"DebugHost" : "127.0.0.1:5850",
+    "GcTime" : 15
+}

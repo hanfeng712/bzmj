@@ -1,0 +1,14 @@
+{
+  "comment1" : "chatserver的外网ip地址:7840",
+  "ListenForClient" : "0.0.0.0:7840",
+  "ListenForServer" : "127.0.0.1:8840",
+  "ListenForGm" : "127.0.0.1:6840",
+  "DebugHost" : "127.0.0.1:5840",
+  "GcTime" : 15,
+  "maincache" : {
+    "host" : "127.0.0.1",
+    "index" : 13,
+    "pool" : 100,
+    "port" : 6379
+  }
+}

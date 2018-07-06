@@ -1,0 +1,52 @@
+{
+  "DBHost" : "127.0.0.1:8861",
+  "DebugHost" : "127.0.0.1:5861",
+  "GcTime" : 15,
+  "cache" : {
+    "main" : [
+      {
+        "host" : "127.0.0.1",
+        "index" : 0,
+        "pool" : 100,
+        "port" : 6379
+      },
+      {
+        "host" : "127.0.0.1",
+        "index" : 1,
+        "pool" : 100,
+        "port" : 6379
+      }
+    ]
+  },
+  "comment1" : "请配置dbserver的内网ip地址:8800",
+  "database" : {
+    "main" : [
+      {
+        "charset" : "utf8",
+        "dbname" : "dbtest1",
+        "host" : "127.0.0.1",
+        "pass" : "ppedbs",
+        "pool" : 16,
+        "port" : 3306,
+        "uname" : "root"
+      },
+      {
+        "charset" : "utf8",
+        "dbname" : "dbtest2",
+        "host" : "127.0.0.1",
+        "pass" : "ppedbs",
+        "pool" : 16,
+        "port" : 3306,
+        "uname" : "root"
+      }
+    ]
+  },
+  "tables" : {
+    "tencentid2playerid" : {
+      "cache-profile" : "main",
+      "db-profile" : "main",
+      "introduce" : "redis会用一个正向及一个反向map来存，反向表在表名字后面加_re",
+      "expiry" : 0
+    }
+  }
+}
