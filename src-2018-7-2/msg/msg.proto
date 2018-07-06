@@ -1,0 +1,1653 @@
+syntax = "proto2";
+package rpc;
+
+message Rpc{
+	repeated Request request = 1;
+}
+
+message Request{
+	required string method = 1;
+	optional bytes serialized_request = 2;
+}
+
+message Msg{
+	optional string code = 1;
+	optional string text = 2;
+}
+
+//充值平台类型
+enum USER_RECHARGE_PLATFORM
+{
+	RECHARGE_PLATFORM_IOS = 1;
+	RECHARGE_PLATFORM_WEIXIN = 2;
+	RECHARGE_PLATFORM_WINDOWS = 3;
+}
+
+//用户登录身份类型
+enum USER_IDENTITY_TYPE
+{
+	IDENTITY_TYPE_NORMAL	= 1;
+	IDENTITY_TYPE_VISITOR	= 2;
+	IDENTITY_TYPE_WEIXIN	= 3;
+	IDENTITY_TYPE_QQ		= 4;
+	IDENTITY_TYPE_ROBOT		= 5;
+}
+
+//结果类型
+enum RESULT_TYPE
+{
+    RESULT_TYPE_SUCCESS 				= 0;
+	RESULT_TYPE_SYS_ERR 				= 1;
+	RESULT_TYPE_TIMEOUT_ERR 			= 2;
+	RESULT_TYPE_PHONENUM_ERR 			= 3;
+	RESULT_TYPE_REG_NICKNAME_ERR 		= 4;
+	RESULT_TYPE_REG_SEX_ERR 			= 5;
+	RESULT_TYPE_AUTH_PASSWORD_ERR 		= 6;
+	RESULT_TYPE_CHANGE_PASSWORD_ERR 	= 7;
+}
+
+enum USER_RECHARGE_RESULT
+{
+	RECHARGE_RESULT_NONE				= 0;
+	RECHARGE_RESULT_INIT				= 1;
+	RECHARGE_RESULT_ING					= 2;
+	RECHARGE_RESULT_SUCCESS				= 3;
+	RECHARGE_RESULT_FAIL				= 4;
+}
+
+//用户身份类型
+/*enum USER_IDENTITY_TYPE
+{
+	IDENTITY_TYPE_NORMAL	= 1;
+	IDENTITY_TYPE_VISITOR	= 2;
+	IDENTITY_TYPE_WEIXIN	= 3;
+	IDENTITY_TYPE_QQ		= 4;
+	IDENTITY_TYPE_ROBOT		= 5;
+}
+*/
+
+//货币类型
+enum CURRENCY_TYPE
+{
+	CURRENCY_TYPE_NONE	= 0;
+	CURRENCY_TYPE_GOLD	= 1;
+	CURRENCY_TYPE_DIAMOND = 2;
+	CURRENCY_TYPE_POINT	= 3;
+}
+
+message ThirdPartLogin{
+	required bytes  WeiXinBaseInfo= 1;
+}
+//////////////////////////////////////////////////////constant share by client and server end
+
+message SyncError{
+	optional string text = 1;
+}
+ 
+message RpcErrorResponse{
+	required string method = 1;
+	required string text = 2;
+}
+
+message Login{
+	required uint64 uid = 1;
+}
+
+message LoginRsp{
+	required uint64 uid = 1;
+}
+
+
+message CSHeartBeatRqst {
+    	required uint32 Reserved = 1;
+}
+
+message CSHeartBeatRsp {
+    	required uint64 ServerTime = 1;
+}
+
+// common err msg
+message CSCommonErrMsg {
+    	required uint32 RqstCmdID = 1;
+    	required uint32 ErrorCode = 2;
+	required uint64 Uid = 3;
+    	optional int32 opt1 = 4;
+    	optional int32 opt2 = 5;
+	
+}
+//登陆
+message CSUserLoginRqst{
+	required USER_IDENTITY_TYPE Identity = 1;
+}
+
+
+message PlayerBaseInfo{
+    	required uint64 Uid = 1; 
+	required string NickName = 2;
+    	required int32 Sex = 3;
+    	required int64 UserGold = 4;
+    	required int64 CustomRoomPoint = 5;
+	required string HeadImage = 6;
+	required USER_IDENTITY_TYPE Identity = 7;
+	required int64 UserDiamond = 8;
+    	required uint32 ConnectIp = 9; //玩家连接ip
+    	required uint32 Longitude = 10; //玩家经度
+    	required uint32 Latitude = 11; //玩家纬度
+}
+
+message PlayerInfo{
+	required PlayerBaseInfo BaseInfo = 1;
+}
+
+//登陆响应
+message CSUserLoginRsp{
+    	required int32  IsNewUser= 1;
+    	required PlayerInfo Info = 2;
+    	required ROOM_TYPE CurRoomType =3; //房间类型
+	required uint32 CurRoomId = 4; //房间id
+}
+
+//登出
+message CSUserLogoutRqst{
+	required string UserName = 1;
+	
+}
+
+//登出响应
+message CSUserLogoutRsp{
+	required string UserName = 1;
+}
+
+
+//设置昵称
+message CSUserSetNickRqst{
+	required string NewNickName = 1;
+}
+message CSUserSetNickRsp{
+	required string OldNickName = 1;
+}
+
+//设置性别
+message CSUserSetSexRqst{
+	required int32 NewSex = 1;
+}
+message CSUserSetSexRsp{
+	required int32 OldSex = 1;
+}
+
+//添加金豆
+message CSUserAddGoldRqst{
+	required uint32 GoldValue = 1; //房间id
+}
+
+message CSUserAddGoldRsp{
+	required uint64 UserGoldValue = 1; //用户当前金豆值
+}
+
+enum ROOM_TYPE{
+    	ROOM_TYPE_NONE = 1; 
+    	ROOM_TYPE_CUSTOM_XUE_ZHAN_MJ  = 500;//定制血战麻将
+	ROOM_TYPE_CUSTOM_GOLD_XUE_ZHAN_MJ  = 501;//定制血战麻将-金币
+	ROOM_TYPE_CUSTOM_CLUB_XUE_ZHAN_MJ  = 502;//定制俱乐部血战麻将
+	ROOM_TYPE_CUSTOM_ZFB_YULE_MJ  = 503;//玩家中发白
+}
+
+enum ZFB_TABLE_TYPE{
+	TALE_LEVE_NONE = 1;//空
+    	TALE_LEVE_ONE = 2;//初级场
+    	TALE_LEVE_TWO  = 3;//中级场
+	TALE_LEVE_THREE  = 4;//高级场
+}
+
+enum ZFB_TABLE_RULES_TYPE{
+	ZFB_RULES_NONE = 1;//空
+    	ZFB_RULES_ZHUANG = 2;//庄
+	ZFB_RULES_IDLE = 3;//闲
+	ZFB_RULES_HE = 4;//和
+	ZFB_RULES_LEOPAR = 5;//豹子
+	ZFB_RULES_BAR = 6;//天杠
+}
+
+enum RoomState{
+    	Room_State_Init = 1;
+    	Room_State_Game = 2;      //正常可游戏状态
+    	Room_State_Dissolve = 3; //销毁状态
+    	Room_State_Wait_Renew = 4;//等待续约
+}
+
+enum TableDefine{
+    	TABLE_SEAT_NONE = 100; //无效的座位ID
+}
+
+enum TableState{
+    	Table_State_Init = 1;
+	Table_State_Start = 2;
+    	Table_State_Gaming = 3;
+    	Table_State_Game_End = 4;//游戏结束
+    	Table_State_Dissolve = 5;
+    	Table_State_Wait_Renew = 6;//等待续约
+    	Table_State_Wait_Dissolve = 7;//等待解散投票
+	Table_State_Wait_Recharge = 8;//等待充值
+}
+
+enum MjUserState
+{
+    	Mj_User_State_Init = 1;  //初始化
+    	Mj_User_State_Sit= 2;   //坐下
+    	Mj_User_State_Ready= 3; //准备
+    	Mj_User_State_Playing= 4; //比赛过程中
+    	Mj_User_State_Hu= 5; // 胡牌
+    	Mj_User_State_GiveUp= 6; //认输
+	Mj_User_State_Observer_Sit = 7;   //观察者状态坐下
+	Mj_User_State_Wait_Recharge = 8;   //等待充值的状态
+};
+
+
+enum PlayerDefine
+{
+    INVALID_LATITUDE_LONGITUDE = 200; //无效的经纬度
+};
+
+//进入房间
+message CSUserEnterRoomRqst{
+    	required ROOM_TYPE RoomType =1; //房间类型
+	required uint32 RoomId = 2; //房间id
+    	required uint32 Longitude = 3; //玩家经度
+    	required uint32 Latitude = 4; //玩家纬度
+	required uint64 ClubId = 5; // 队伍ID
+	required string RoomPassword = 6; // 房间密码
+	required uint64 Uid = 7; // 玩家ID
+}
+
+
+message CSUserEnterRoomRsp{
+    	required ROOM_TYPE RoomType = 1; //房间类型
+	required uint32 RoomId = 2; //房间id
+	required bool EnterRoomSuccess = 3;
+	required uint64 MinCurrencyValue = 4; //房间最小带入
+}
+
+//离开房间
+message CSUserLeaveRoomRqst{
+    	required ROOM_TYPE RoomType =1; //房间类型
+	required uint32 RoomId = 2; //房间id
+	required uint64 Uid = 3; // 玩家ID
+}
+message CSUserLeaveRoomRsp{
+    	required ROOM_TYPE RoomType = 1; //房间类型
+	required uint32 RoomId = 2; //房间id
+}
+
+
+//玩家挑战赛信息
+message CSUserChallengeModeInfo{
+    	required uint32 TreasureCard = 1; //宝牌
+    	required uint32 TreasureCardCount = 2; //宝牌的数量
+    	required uint32 Points = 3;//积分
+    	required uint32 ChallengeCount = 4;//挑战的局数（进度）
+    	required uint32 ChallengeTimes = 5;//挑战次数（体力值）
+}
+
+//CS_CMD_USER_CHALLENGE_MODE_INFO_NOTIFY = 60;//挑战赛信息通知
+message CSUserChallengeModeInfoNotify{
+    required CSUserChallengeModeInfo ChallengeModeInfo = 1;//挑战赛信息
+}
+
+
+message SeatInfo{
+    required uint32 SeatId = 1; //座位号（0-3)
+    required MjUserState UserState = 2; //玩家状态
+    required bool OffLineFlag = 3; //玩家离线标志
+    required PlayerBaseInfo BaseInfo = 4; //玩家基础信息
+    optional int64 StartMatchCurrencyValue = 5; //每局开始的货币值
+}
+
+message ViewSeatInfo{
+    required PlayerBaseInfo BaseInfo = 1; //玩家基础信息
+}
+
+
+message TableInfo{
+    	required uint32 BankerSeatId = 1; //庄家id
+    	required uint32 FirstDice = 2; //第一个色子数值
+    	required uint32 SecondDice = 3;//第二个色子数值
+    	required uint32 CardNum = 4;//剩余卡牌数量
+    	required TableState tableState = 5;//当前桌子状态
+    	repeated SeatInfo SeatInfos = 6; //桌子座位信息
+    	repeated ViewSeatInfo ViewSeatInfos = 7; //围观座位信息
+    	required uint32 WaitRenewRoomTimeOut = 8;//房主续桌操作超时时间
+   	required uint64 SettlementId = 9;//每轮比赛的计算编号
+	required uint64 FinishedMatchNum = 10;//已完成比赛局数
+	required uint32 TotalMatchNum = 11; //需要完成的比赛局数
+	required uint32 WaitRechargeTimeOut = 12;//玩家充值操作超时时间
+}
+
+
+//开始游戏
+message CSUserStartGameRqst{
+    	required ROOM_TYPE RoomType = 1; //房间类型
+	required uint32 RoomId = 2; //房间id
+}
+message CSUserStartGameRsp{
+    required ROOM_TYPE RoomType = 1; //房间类型
+    required uint32 RoomId = 2; //房间id
+}
+
+//通知桌子信息改变
+message CSUserTableInfoChangeNotify{
+    	required ROOM_TYPE RoomType = 1; //房间类型
+    	required uint32 RoomId = 2; //房间id
+    	required TableInfo Info = 3;//桌子信息
+	required uint64 RoomOwnerUid = 4; //房主Uid
+}
+//游戏准备
+message CSUserReadyGameRqst{
+    	required uint32 ReadySeatId = 1; //准备座位id
+	required uint64 Uid = 2; 
+}
+
+//CS_CMD_USER_TABLE_RECHARGE_GIVE_UP = 94; //玩家比赛中放弃充值机会
+message CSUserTableRechargeGiveUpRqst{
+    	required uint32 GiveUpSeatId = 1; //座位id
+}
+//通知游戏准备
+message CSUserReadyGameNotify{
+    	required uint32 ReadySeatId = 1; //准备座位id
+}
+
+
+//发牌
+message CSUserMjAssignNotify{
+    	required uint32 SeatId = 1; //座位id
+    	required uint32 BankerSeatId = 2; //庄家id
+    	required uint32 FirstDice = 3; //第一个色子数值
+    	required uint32 SecondDice = 4;//第二个色子数值
+    	repeated uint32 Mjs = 5;//麻将数组，麻将使用uint32的个位和十位，十位代表花色，个位代表值
+}
+
+
+//麻将操作码
+enum MJ_OPERATE_MASK{
+	MJ_OPERATE_MASK_NONE = 1;
+    	MJ_OPERATE_MASK_DEAL = 2; //出牌
+    	MJ_OPERATE_MASK_GUO = 3; //不出牌
+    	MJ_OPERATE_MASK_PENG = 4; //碰牌
+    	MJ_OPERATE_MASK_MING_GANG = 5; //明杠
+    	MJ_OPERATE_MASK_AN_GANG = 6; //暗杠
+    	MJ_OPERATE_MASK_BU_GANG = 7; //补杠
+    	MJ_OPERATE_MASK_REJECTSUIT = 8; //定缺
+    	MJ_OPERATE_MASK_HU = 9; //胡牌
+    	MJ_OPERATE_MASK_MO_PAI= 10;//摸牌,服务器使用
+    	MJ_OPERATE_MASK_GIVE_UP= 11;//认输
+    	MJ_OPERATE_MASK_HUAN_SAN_ZHANG= 12;//换三张
+}
+
+//玩家操作
+message CSUserMjOperateRqst{
+    	required uint32 OperateSeatId = 1; //操作座位号
+    	required MJ_OPERATE_MASK OperateMask = 2;//操作掩码
+    	required uint32 TagMj = 3; //标记麻将
+    	optional uint32 TagMj1 = 4; //标记麻将
+    	optional uint32 TagMj2 = 5; //标记麻将
+	required uint64 Uid = 6; // 玩家ID
+}
+
+message MjSettlementDetail{
+    required uint32 SeatId = 1; //座位id
+    required int32 Value = 2; //数值
+}
+//结算信息
+message MjSettlementInfo{
+    	required MJ_SETTLEMENT_TYPE Type = 1;  //类型, 下雨，刮风，炮，胡等。
+    	repeated MjSettlementDetail Detail = 2;
+	required uint32 HuType = 3;		//胡牌类型
+	required uint32 Multiple = 4;			//倍数
+	required int32 GenCount = 5;			//根
+}
+
+//玩家操作通知
+message CSUserMjOperateNotify{
+    	required MJ_OPERATE_MASK OperateMask = 1;//操作掩码
+    	required uint32 OperateSeatId = 2;//操作的玩家位置
+    	required uint32 TagMj = 3; //标记麻将（确定是否播放扣钱动画） 
+    	repeated MjSettlementInfo SettlementInfo = 4; // 操作结果明细
+    	optional uint32 TagMj1 = 5; //标记麻将
+    	optional uint32 TagMj2 = 6; //标记麻将
+}
+
+//通知玩家等待其他人操作
+message CSUserMjWaitForOperateNotify{
+    	repeated MJ_OPERATE_MASK OperateMask = 1;//操作掩码
+    	required uint32 RelationSeatId = 2;//等待操作的玩家位置
+    	required uint32 OperateTimeOut = 3;//操作超时时间
+}
+
+//摸牌
+message CSUserMjGetNotify{
+    	repeated MJ_OPERATE_MASK OperateMask = 1;//操作掩码
+    	required uint32 RelationSeatId = 2;//操作的玩家位置
+    	required uint32 TagMj = 3; //目标麻将
+    	required uint32 OperateTimeOut = 4;//操作超时时间
+}
+
+//结束时，推送每个人的手牌
+message CSUserMjLastHandNotify{
+    	required ROOM_TYPE RoomType = 1; //房间类型
+	required uint32 RoomId = 2; //房间id
+    	required uint32 SeatId = 3; //座位id
+    	repeated uint32 Mjs = 4;//麻将数组
+}
+
+
+//通知座子解散
+message CSUserTableDIsmissNotify{
+    	required ROOM_TYPE RoomType = 1; //房间类型
+	required uint32 RoomId = 2; //房间id
+    	required uint32 SeatId = 3; //座位id
+}
+
+//玩家基础信息改变通知
+message CSUserBaseInfoChangeNotify{
+	required PlayerBaseInfo BaseInfo = 1;
+}
+
+
+//麻将操作码
+enum MJ_SETTLEMENT_TYPE{
+    	MJ_SETTLEMENT_TYPE_NONE = 0;
+	MJ_SETTLEMENT_TYPE_HU = 1; 			//点胡
+    	MJ_SETTLEMENT_TYPE_ZI_MO = 2; 		//自摸 
+    	MJ_SETTLEMENT_TYPE_QIANG_GANG = 3; 	//抢杠
+    	MJ_SETTLEMENT_TYPE_GANG_HUA = 4; 	//杠上花
+    	MJ_SETTLEMENT_TYPE_GANG_PAO = 5; 	//杠上炮
+    	MJ_SETTLEMENT_TYPE_GUA_FENG = 6; 	//刮风
+    	MJ_SETTLEMENT_TYPE_XIA_YU = 7; 		//下雨
+    	MJ_SETTLEMENT_TYPE_CHA_JIAO = 8; 	//查叫
+    	MJ_SETTLEMENT_TYPE_TUI_SHUI = 9; 	//退税
+    	MJ_SETTLEMENT_TYPE_HUA_ZHU = 10; 	//花猪
+	MJ_SETTLEMENT_TYPE_ZHUAN_YU = 11; 	//转雨
+	MJ_SETTLEMENT_TYPE_TIAN_HU = 12; 	//天胡
+	MJ_SETTLEMENT_TYPE_DI_HU = 13; 		//地胡
+	MJ_SETTLEMENT_TYPE_ESCAPE = 14;     //逃跑
+}
+
+enum FINAL_CARD_TYPE
+{
+	FINAL_CARD_TYPE_NONE 			= 0x000;
+	FINAL_CARD_TYPE_HU			= 0x001;				//胡
+	FINAL_CARD_TYPE_DA_DUI 			= 0x002;				//大对子
+	FINAL_CARD_TYPE_JIANG 			= 0x004;				//将
+	FINAL_CARD_TYPE_YAO_JIU 		= 0x008;				//幺九
+	FINAL_CARD_TYPE_QING 			= 0x010;				//清一色
+	FINAL_CARD_TYPE_QI_DUI 			= 0x020;				//七对
+	FINAL_CARD_TYPE_JIN_GOU_DIAO 	= 0x040;				//金钩吊
+	FINAL_CARD_TYPE_HAI_DI_LAO 		= 0x080;				//海底捞月
+	FINAL_CARD_TYPE_MEN_QING		= 0x100;				//门清
+	FINAL_CARD_TYPE_ZHONG_ZHANG		= 0x200;				//中张
+}
+
+message CSMjOperateRecord{
+    required uint32 SeatId = 1; //座位id
+    required MJ_OPERATE_MASK OperateMask = 2;//操作掩码
+    required uint32 TagMj = 3; //目标麻将
+    optional uint32 TagMj1 = 4; //目标麻将
+    optional uint32 TagMj2 = 5; //目标麻将
+}
+
+//桌子麻将信息
+message CSUserTableCardInfoNotify{
+    required ROOM_TYPE RoomType = 1; //房间类型
+    required uint32 RoomId = 2; //房间id
+    required uint32 SeatId = 3; //座位id
+    required uint32 TagSeatId = 4; //座位id
+    required MjUserState UserState = 5; //当前座位玩家状态
+    required uint32 RejectSuit = 6; //却色
+    repeated uint32 DealCards =7;//出的牌
+    repeated uint32 HandCards = 8;//手牌
+    repeated uint32 MingCards = 9;//明杠的牌
+    repeated uint32 AnGangCards = 10;//按杠的牌
+    repeated uint32 BuGangCards = 11;//补杠的牌
+    repeated uint32 PengCards = 12;//碰的牌
+    required uint32 HuCards = 13;//胡的牌
+    optional CSMjOperateRecord LastOperateRecord = 14; //最后操作记录
+    repeated uint32 HuanCards = 15;//换出的三张牌
+    repeated uint32 HuanInCards = 16;//换进的三张牌
+	required MJ_SETTLEMENT_TYPE SettlementType = 17;//结算类型
+}
+
+
+//比赛结束结果明细
+message CSUserMjSettlementInfoNotify{
+    required ROOM_TYPE RoomType = 1; //房间类型
+	required uint32 RoomId = 2; //房间id
+    required uint32 SeatId = 3; //座位id
+    repeated MjSettlementInfo SettlementInfo = 4;
+}
+
+
+
+//玩家对花信息通知
+message CSUserSubFlowerNotify{
+    required ROOM_TYPE RoomType = 1; //房间类型
+    required uint32 RoomId = 2; //房间id
+    required uint64 TotalPoints = 3; //总积分
+    required uint64 SinglePoint = 4;//单局积分
+    required uint32 ChallengeCount = 5;//挑战局数
+    required uint32 ChallengeTimes = 6;//挑战次数
+    required uint32 TreasureCardCount = 7;//宝牌数量
+    required uint32 SubFlowerCard = 8;//对花的card
+    required uint32 SubFlowerCardCount = 9;//对花的数量
+    required uint32 GainPercentage = 10;//增益百分比
+    required uint32 OldSinglePoint = 11;//单局积分
+}
+
+//玩家挑战赛结果通知
+message CSUserChallengeModeResultInfoNotify{
+    required ROOM_TYPE RoomType = 1; //房间类型
+    required uint32 RoomId = 2; //房间id
+    required uint64 TotalPoints = 3; //总积分
+    required uint64 HighestTotalPoints = 4; //最高积分
+    required uint32 Ranking = 5;//排名
+    required uint32 AllRankingNum = 6;//排名人数
+    required uint32 ChallengeCount = 7;//挑战局数
+    required uint32 ChallengeTimes = 8;//挑战次数
+    required uint32 TreasureCard = 9;//宝牌数量
+    required uint32 TreasureCardCount = 10;//宝牌数量
+    required uint32 GainPercentage = 11;//增益百分比
+    required uint64 OldTotalPoints = 12;//增益前总积分
+}
+
+//玩家挑战赛排名奖励通知
+message CSUserChallengeModeRankingRewardNotify{
+    required ROOM_TYPE RoomType = 1; //房间类型
+    required uint32 RoomId = 2; //房间id
+    required uint64 TotalPoints = 3; //总积分
+    required uint32 Ranking = 4;//排名
+    required int64 Gold = 5;//奖励的金豆
+    required uint64 Time = 6;//发放奖励时间
+}
+ 
+//请求玩家排名列表
+message CSUserChallengeModeRankingListRqst{
+    required uint32  StartRank = 1; //起始排名位置
+	required uint32  RankNum = 2; //请求排名数量
+}
+
+message CSChallengModeRankingInfo{
+    required uint32 Ranking = 1; //排名
+    required uint32 Points = 2; //积分
+    required PlayerBaseInfo BaseInfo = 3; //基础信息
+}
+
+message CSUserChallengeModeRankingListRsp{
+    required uint32  StartRank = 1; //起始排名位置
+	required uint32  RankNum = 2; //获得的排名数量
+    required uint32  TotalRankNum = 3; //所有排名数量
+    required uint32  PlayerRanking = 4; //玩家自己排名，0，表示未上榜
+    required uint32  PlayerRankingPoint = 5; //玩家排名积分
+    repeated CSChallengModeRankingInfo RankInfos = 6; //排名信息
+    
+}   
+
+enum HUAN_SAN_ZHANG_TYPE
+{
+	HUAN_SAN_ZHANG_TYPE_NONE = 0;//不换三张
+	HUAN_SAN_ZHANG_TYPE_1 = 1;//换同色
+	HUAN_SAN_ZHANG_TYPE_2 = 2;//随意换三张
+}
+
+message RoomAdvanceParam
+{
+	required bool ZiMoJiaFan = 1;
+	required bool ZiMoMoreThanMaxFan = 2;
+	required bool JinGouDiao = 3;
+	required bool HaiDiLaoYue = 4;
+	required bool DaXiaoYu = 5;
+	required bool DianGangHuaZiMo = 6;
+	required bool YaoJiu = 7;
+	required bool Jiang = 8;
+	required HUAN_SAN_ZHANG_TYPE HuanSanZhangType = 9;
+	required bool MenQing = 10;
+	required bool ZhongZhang = 11;
+}
+
+//CS_CMD_USER_CREATE_ROOM = 33; //创建房间
+//创建房间
+message CSUserCreateRoomRqst{
+    	required ROOM_TYPE RoomType = 1; //房间类型
+    	required uint32 RoomMatchNum = 2; //房间比赛局数
+    	required uint32 RoomDiZhu = 3; //底柱
+    	required uint32 RoomMaxBeiShu = 4; //房间比赛最大倍数
+	required RoomAdvanceParam AdvanceParam = 6;
+    	optional uint32 mAppointRoomId = 7;//压力测试使用，指定创建房间号，显示不使用。
+	required uint32 Deposit = 8;//保证金
+	required string RoomPassword = 9;//房间密码
+	required uint32 MinMatchUserNum = 10; //最小开赛人数
+	required uint32 MinCurrencyValue = 11; //最带入货币值
+	required uint32	ClubId = 12;//队伍ID
+	required bool	IsPrivateRoom = 13;//是否是私密房间
+	repeated uint64 InvitedUid = 14;//被邀请的玩家id
+	required uint64 RewardCoin = 15;//奖金数目
+	required uint64 JoinMatchFee= 16;//报名费数目
+	required uint32 MatchType= 17;//赛制类型
+	required uint64 Uid = 18; // 玩家ID
+}
+
+message CSUserCreateRoomRsp{
+    required ROOM_TYPE RoomType = 1; //房间类型
+    required uint32 RoomId = 2; //房间id,房间号
+	required uint64 Uid = 3; 
+}
+
+//CS_CMD_USER_DISSOLVE_ROOM = 34; //解散房间，创建者可以解散房间
+//解散房间
+message CSUserDissolveRoomRqst{
+	required ROOM_TYPE RoomType =1; //房间类型
+	required uint32 RoomId = 2; //房间id
+}
+
+message CSUserDissolveRoomRsp{
+	required ROOM_TYPE RoomType = 1; //房间类型
+    required uint32 RoomId = 2; //房间id,房间号
+}
+
+//CS_CMD_USER_DISSOLVE_ROOM_NOTIFY = 35; //解散房间，创建者可以解散房间
+message CSUserDissolveRoomNotify{
+    required uint32 RoomId = 1; //房间id
+}
+
+//CS_CMD_USER_RENEW_ROOM = 36; //续约房间
+//续约房间
+message CSUserRenewRoomRqst{
+    required uint32 RoomId = 1; //房间id
+}
+
+message CSUserRenewRoomRsp{
+    required uint32 RoomId = 1; //房间id,房间号
+}
+
+//CS_CMD_USER_CREATE_DISSOLVE_ROOM_COST_NOTIFY = 37; //房间创建解散费用通知
+//房间创建解散费用通知
+message CSUserCreateDissolveRoomCostNotify{
+    required uint32 RoomId = 1; //房间id
+    required ROOM_TYPE RoomType = 2; //房间类型
+    required int32 Cost = 3; //费用
+}
+//CS_CMD_USER_ROOM_INFO_CHANGE_NOTIFY = 38; //房间信息改变通知
+//房间信息改变通知
+message CSUserRoomInfoChangeNotify{
+    required ROOM_TYPE RoomType = 1; //房间类型
+    required uint32 RoomId = 2; //房间id
+    required uint32 RoomMatchNum = 3; //房间比赛局数
+    required uint32 RoomDiZhu = 4; //底柱
+    required uint32 RoomMaxBeiShu = 5; //房间比赛最大倍数
+    required uint64 RoomOwnerUid = 7; //房主Uid
+    required uint64 RoomPlayerNum = 8;//房间人数
+    required RoomState RoomState = 9;//当前房间状态
+	required RoomAdvanceParam AdvanceParam = 10;
+	required uint32 Deposit = 11; //保证金
+	required uint64 ClubId = 12;//队列id
+	required uint32 MinMatchUserNum = 13; //最小开赛人数
+	required uint32 MinCurrencyValue = 14; //最带入货币值
+}
+
+//CS_CMD_USER_TABLE_CHAT = 49;//聊天
+//玩家操作
+message CSUserTableChatRqst{
+    required uint32 OperateSeatId = 1; //操作座位号
+    optional string TextContent = 2; //文本内容
+    optional bytes  BinaryContent = 3; //二进制内容
+    optional uint32 ContentTime = 4;//媒体时长（单位毫秒）
+}
+//CS_CMD_USER_TABLE_CHAT_NOTIFY = 50;//聊天信息通知
+
+message CSUserTableChatNotify{
+    required uint32 OperateSeatId = 1; //操作座位号
+    optional string TextContent = 2; //文本内容
+    optional bytes  BinaryContent = 3; //二进制内容
+    optional uint32 ContentTime = 4;//媒体时长（单位毫秒）
+}
+
+
+//CS_CMD_USER_TABLE_DISSOLVE_APPLY = 51;//申请解散桌子
+message CSUserTableDissolveApplyRqst{
+    required uint32 ApplySeatId = 1; //申请座位号
+}
+//CS_CMD_USER_TABLE_ANSWER_DISSOLVE_APPLY = 52;//应答解散申请
+message CSUserTableAnswerDissolveApplyRqst{
+    required uint32 AnswerApplySeatId = 1; //应答申请座位号
+    required bool Agree = 2; //是否同意
+}
+
+enum TableFinalDecision
+{
+    Table_Decision_None = 1;
+    Table_Decision_Agree = 2;
+    Table_Decision_Disagree = 3;
+}
+
+//CS_CMD_USER_TABLE_DISSOLVE_APPLY_NOTIFY = 53;//申请解散通知
+message CSUserTableDissolveApplyNotify{
+    required uint32 ApplySeatId = 1; //申请座位号
+    repeated uint32 AgreeApplySeatIds = 2; //同意申请座位号
+    repeated uint32 DisagreeApplySeatIds = 3; //不同意申请座位号
+    required TableFinalDecision  FinalDecision = 4; //最终裁决
+    required uint32  ApplyTimeOut = 5; //裁决剩余时间
+}
+
+//CS_CMD_USER_TABLE_ALL_MATCH_RECORD_NOTIFY = 54;//所有比赛输赢大小通知
+
+message CSMatchWinDetailInfo{
+	required uint32 SeatId = 1;
+	required int32  WinValue = 2;
+}
+
+message CSMatchWinRecord{
+	repeated CSMatchWinDetailInfo DetailInfo = 1;
+}
+message CSUserTableMatchWinRecordNotify{
+  
+	repeated CSMatchWinRecord TableMatchWinRecord = 1; //每场比赛输赢记录
+	required uint64 WinRewardCoin = 2;//获得的加金数量
+}
+//邮件类型
+enum GAME_EMAIL_TYPE
+{
+	GAME_EMAIL_TYPE_TEXT = 0;
+	GAME_EMAIL_TYPE_REWARD = 1;
+}
+
+enum GAME_EMAIL_NOTIFY_TYPE
+{
+	GAME_EMAIL_NOTIFY_TYPE_NONE = 0;
+	GAME_EMAIL_NOTIFY_TYPE_REMIND = 1;
+}
+
+//状态类型
+enum GAME_EMAIL_STATUS
+{
+	GAME_EMAIL_STATUS_NONE = 0;
+	GAME_EMAIL_STATUS_OPENED = 1;
+}
+
+message UserReward
+{
+	required CURRENCY_TYPE Type = 1;
+	required int32 Count = 2;
+}
+
+message UserEmailInfo
+{
+	required uint32 Id = 1;
+	required GAME_EMAIL_TYPE Type = 2;
+	required GAME_EMAIL_NOTIFY_TYPE NotifyType = 3;
+	required GAME_EMAIL_STATUS Status = 4;
+	required uint64 SenderUid = 5;
+	required string SenderName = 6;
+	required string Title = 7;
+	required string Text = 8;
+	required int64 Time = 9;
+	repeated UserReward Rewards = 10;
+}
+
+message CSUserGetEmailInfoRqst
+{
+	required int32 Reserved = 1;
+}
+
+message CSUserGetEmailInfoRsp
+{
+	repeated UserEmailInfo EmailInfo = 1;
+}
+
+message CSUserOpenEmailRqst
+{
+	required uint32 EmailId = 1;
+}
+
+message CSUserOpenEmailRsp
+{
+	required UserEmailInfo EmailInfo = 1;
+}
+
+message CSUserGetEmailRewardRqst
+{
+	required uint32 EmailId = 1;
+}
+
+message CSUserGetEmailRewardRsp
+{
+	required uint32 EmailId = 1;
+}
+
+message CSUserDeleteEmailRqst
+{
+	required uint32 EmailId = 1;
+}
+
+message CSUserDeleteEmailRsp
+{
+	required uint32 EmailId = 1;
+}
+
+message CSUserNewEmailNotify
+{
+	required UserEmailInfo EmailInfo = 1;
+}
+
+message CSUserSignInRqst
+{
+	required int32 Reserved = 1;
+}
+
+message CSUserSignInRsp
+{
+	required int32 ConsecutiveSignInNumber = 1;
+}
+
+message CSUserGetConsecutiveSignInNumberRqst
+{
+	required int32 Reserved = 1;
+}
+
+message CSUserGetConsecutiveSignInNumberRsp
+{
+	required int32 ConsecutiveSignInNumber = 1;
+	required bool HasSignIn = 2;
+}
+
+message SignInRewardCfg
+{
+	required int32 DayNumber = 1;
+	required UserReward Reward = 2;
+}
+
+message CSUserGetSignInRewardCfgRqst
+{
+	required int32 Reserved = 1;
+}
+
+message CSUserGetSignInRewardCfgRsp
+{
+	repeated SignInRewardCfg SignInReward = 1;
+}
+
+/*
+enum USER_RECHARGE_PLATFORM
+{
+	RECHARGE_PLATFORM_IOS = 1;
+	RECHARGE_PLATFORM_WEIXIN = 2;
+	RECHARGE_PLATFORM_WINDOWS = 3;
+}
+*/
+message CSUserGetOrderRqst
+{
+	required uint32 GoodId = 1;
+	required string ProuctFileHash = 2;
+	required USER_RECHARGE_PLATFORM RechargePlatForm = 3;
+}
+
+message CSUserGetOrderRsp
+{
+	required uint32 GoodId = 1;
+	required string ServerOrderId = 2;
+	required string GoodMoney = 3;
+}
+
+message CSUserAuthRedeiptRqst
+{
+	required int32 GoodId = 1;
+	required int32 BuyResult = 2;
+	required USER_RECHARGE_PLATFORM RechargePlatForm = 3;
+	required string ServerOrderId = 4;
+	required string ThirdPartRedeipt = 5;
+	required string GoodMoney = 6;
+	required string ProuctFileHash = 7;
+}
+
+message CSUserAuthRedeiptRsp
+{
+	required int32 GoodId = 1;
+	required USER_RECHARGE_RESULT ResultType = 2;
+	required string ServerOrderId = 3;
+}
+
+message UserGoldRank
+{
+	required uint64 Uid = 1;
+	required string NickName = 2;
+	required int64 Gold = 3;
+	required string Avatar = 4;
+}
+
+message CSUserGetGoldRankListRqst
+{
+	required int32 Reserved = 1;
+}
+
+message CSUserGetGoldRankListRsp
+{
+	repeated UserGoldRank RankList = 1;
+}
+
+message UserWinCountRank
+{
+	required uint64 Uid = 1;
+	required string NickName = 2;
+	required uint64 WinCount = 3;
+	required string Avatar = 4;
+}
+
+message CSUserGetWinCountRankListRqst
+{
+	required int32 Reserved = 1;
+}
+
+message CSUserGetWinCountRankListRsp
+{
+	repeated UserWinCountRank RankList = 1;
+}
+
+enum GAME_TASK_TYPE
+{
+	GAME_TASK_TYPE_NONE = 0;
+	GAME_TASK_TYPE_DAILY = 1;
+	GAME_TASK_TYPE_ACHIEVEMENT = 2;
+}
+
+enum TASK_CONDITION_TYPE
+{
+	TASK_CONDITION_TYPE_NONE = 0;
+	TASK_CONDITION_TYPE_CLASSIC_MODE = 1; //完成经典模式
+	TASK_CONDITION_TYPE_PENG = 2; //碰牌
+	TASK_CONDITION_TYPE_GANG = 3; //杠牌
+	TASK_CONDITION_TYPE_ZI_MO = 4; //自摸
+	TASK_CONDITION_TYPE_QING = 5; //清一色
+	TASK_CONDITION_TYPE_DA_DUI_ZI = 6; //大对子
+	TASK_CONDITION_TYPE_GANG_SHANG_HUA = 7; //杠上花
+	TASK_CONDITION_TYPE_LONG_QI_DUI = 8; //龙七对
+	TASK_CONDITION_TYPE_QIANG_GANG = 9; //抢杠
+	TASK_CONDITION_TYPE_YAO_JIU = 10; //带幺九
+	TASK_CONDITION_TYPE_NEW_REGISTER = 50; //新注册玩家活动
+	TASK_CONDITION_TYPE_COMPLETE_COIN_FIFTY = 51; //完成30局活动
+	TASK_CONDITION_TYPE_COMPLETE_COIN_ONE_HUNDRED = 52; //完成50局活动
+}
+
+message UserTaskInfo
+{
+	required GAME_TASK_TYPE Type = 1;
+	required int32 Id = 2;
+	required string Title = 3;
+	required string Explain = 4;
+	required TASK_CONDITION_TYPE ConditionType = 5;
+	required int32 ConditionDetail = 6;
+	repeated UserReward Rewards = 7;
+	required int32 Count = 8;
+	required bool IsFinished = 9;
+	required uint64 FinishedTime = 10;
+	required bool IsReceived = 11;
+	required uint64 BeginTime = 12;
+	required uint64 EndTime = 13;
+}
+
+message CSUserTasks
+{
+	repeated UserTaskInfo Tasks = 1;
+}
+
+message CSUserGetAllDailyTasksRqst
+{
+	required int32 Reserved = 1;
+}
+
+message CSUserGetAllAchievementTasksRqst
+{
+	required int32 Reserved = 1;
+}
+
+message CSUserGetTaskRewardRqst
+{
+	required GAME_TASK_TYPE TaskType = 1;
+	required int32 TaskId = 2;
+}
+
+message CSUserGetTaskRewardRsp
+{
+	required UserTaskInfo Task = 1;
+}
+
+//AccountSvr
+
+//注册请求
+message CSUserRegAccountRqst{
+	required string NickName = 1;
+	required bytes PassWordHash = 2;
+	required string PhoneNum = 3;
+	required string VerificationCode = 4;	//验证码
+	required uint32 Sex = 5;
+}
+//注册响应
+message CSUserRegAccountRsp{
+	required RESULT_TYPE Result = 1;
+}
+
+//正常注册后的登录
+message NormalAuthMsg {
+   required string PhoneNum = 1;
+	required bytes PassWordHash = 2;
+	required uint32 AppId = 3;
+}
+
+//腾讯登录
+message TencentAuthMsg {
+    optional string TencentToken  = 1;
+	optional string TencentOpenId = 2;
+	optional string TencentCodeId = 3;
+	required uint32 AppId = 4;
+}
+
+//游客登陆
+message VisitorAuthMsg {
+    required string MachineCode  = 1;
+	required uint32 AppId = 2;
+}
+//认证请求
+message CSUserAuthAccountRqst{
+	required USER_IDENTITY_TYPE Identity = 1;
+	optional NormalAuthMsg UserNormalAuth = 2;
+	optional VisitorAuthMsg UserVisitorAuth = 3;
+	optional TencentAuthMsg UserTencentAuth = 4;
+}
+
+//认证响应
+message CSUserAuthAccountRsp{
+	required RESULT_TYPE Result = 1;
+    required bytes  Token= 2;
+	required uint64 UserId= 3;
+	optional TencentAuthMsg TencentAuthRsp = 4;
+}
+
+//修改密码请求
+message CSUserChangePasswordRqst{
+	required string PhoneNum = 1;
+    required bytes NewPassWordHash = 2;	
+	required string VerificationCode = 3;	//验证码
+}
+//修改密码响应
+message CSUserChangePasswordRsp{
+    required RESULT_TYPE Result = 1;
+}
+
+//CS_CMD_USER_CONNECT_SWITCH_NOTIFY = 64;//连接切换通知
+message CSUserConnectSwitchNotify{
+    required uint32 NewConnectIp = 1; //玩家连接ip
+    required uint32 NewPort = 2; //玩家连接port
+    required uint32 OldConnectIp = 3; //玩家连接ip
+    required uint32 OldPort = 4; //玩家连接port
+}
+
+
+//CS_CMD_USER_MATCH_RECORD_LIST = 65;//请求比赛战绩列表
+message CSUserMatchRecordListRqst{
+    required uint32  StartRecord = 1; //起始记录位置
+	required uint32  RecordNum = 2; //请求记录数量
+	required bool    IsClubMatch = 3;//队列赛
+}
+
+message CSMatchRecordInfo{
+    required ROOM_TYPE RoomType = 1; //房间类型
+    required uint32 RoomId = 2; //房间id,房间号
+	required uint32 ClubId = 3; //队列id,队列号
+    required uint64 MatchTime = 4;//比赛时间
+    repeated string UserNick = 5;//比赛玩家昵称
+    repeated int32  UserWinValue = 6;//比赛玩家输赢，与比赛玩家昵称一一对应。
+	required uint64 SettlementId = 7;
+}
+
+message CSUserMatchRecordListRsp{
+    required uint32 StartRecord = 1; //起始记录位置
+	required uint32 RecordNum = 2; //获得的记录数量
+    required uint32 TotalRecordNum = 3; //所有记录数量
+    repeated CSMatchRecordInfo MatchRecordInfos = 4; //比赛记录信息
+	required bool    IsClubMatch = 5;//队列赛
+}  
+
+
+message CSSystemMsgInfo{
+    required uint32 Id = 1; //消息Id
+    required string MsgBody = 2; //消息内容
+}
+
+//CS_CMD_SYSTEM_MSG_NOTIFY = 66;//系统消息通知
+message CSSystemMsgNotify{
+    repeated CSSystemMsgInfo SystemMsgs = 1;
+}
+
+//CS_CMD_USER_DIAMOND_TO_GOLD = 67;//钻石转金币
+message CSUserDiamondToGoldRqst
+{
+	required int32 Id = 1;
+}
+//换三张的类型
+enum TASK_HSZ_TYPE
+{
+	TASK_HSZ_TYPE_NONE = 0;
+	TASK_HSZ_TYPE_CLOCKWISE = 1; //完成经典模式
+	TASK_HSZ_TYPE_ANTI_CLOCKWISE = 2; //逆时针
+	TASK_HSZ_TYPE_FTF = 3; //对家换
+}
+
+//CS_CMD_USER_MJ_HUAN_SAN_ZHANG_NOTIFY = 69;//换三张结果通知
+message CSUserMjHuanSanZhangNotify
+{
+    required TASK_HSZ_TYPE HuanType = 1;//换牌类型
+    required uint32 SeatId = 2;//操作的玩家位置
+    repeated uint32 HuanCards = 3; //换出的麻将
+    repeated uint32 HuanInCards = 4; //换进的麻将
+}
+
+message CSUserDiamondToGoldRsp
+{
+	required int32 Reserved = 1;
+}
+
+//CS_CMD_USER_RECONNECT_ENTER_ROOM = 70; //重连进入房间
+//进入房间
+message CSUserReconnectEnterRoomRqst{
+    	required ROOM_TYPE RoomType =1; //房间类型
+	required uint32 RoomId = 2; //房间id
+    	required uint32 Longitude = 3; //玩家经度
+    	required uint32 Latitude = 4; //玩家纬度
+	required uint64 Uid = 5;
+}
+
+message CSUserReconnectEnterRoomRsp{
+    required ROOM_TYPE RoomType = 1; //房间类型
+	required uint32 RoomId = 2; //房间id
+}
+
+//CS_CMD_USER_LAST_GAME_INFO_NOTIFY
+message UserLastGameInfo
+{
+	required uint32 SeatId = 1;
+	required int32 TotalRecord = 2;
+	required uint32 RejectSuit = 3;
+	required uint32 HuCard = 4;
+	repeated uint32 DealCards = 5;
+	repeated uint32 HandCards = 6;
+	repeated uint32 MingCards = 7;
+	repeated uint32 AnGangCards = 8;
+	repeated uint32 BuGangCards = 9;
+	repeated uint32 PengCards = 10;
+	required MJ_SETTLEMENT_TYPE	SettlementType = 11;
+	repeated MjSettlementInfo SettlementInfo = 12;
+}
+
+message CSUserLastGameInfoNotify
+{
+	required uint32 ZhuangSeatId = 1;
+	required uint32 RemainCardNum = 2;
+	repeated UserLastGameInfo LastGameInfo = 3;
+	required uint64 SettlementId = 4;
+}
+
+message UserSingleBoardInfo
+{
+	required int32 WinValue = 1;//本次比赛赢的数量
+}
+message CSUserAlreadyFinishGameInfoNotify
+{
+	repeated UserSingleBoardInfo SingleBoardInfo = 1;
+}
+
+//CS_CMD_USER_TABLE_READY_SHUT_DOWN_NOTIFY = 72;// 通知准备维护信息
+message CSUserTableReadyShutDownNotify
+{
+	required bool ReadyShutDown = 1;
+	required uint32 ReadyShutDwonTimeOut = 2; //准备维护剩余时间
+}
+
+message BuyRecordContext
+{
+	required uint64 ProductCount = 1;
+	required uint64 ProductPrice = 2;
+	required uint64 ProductBuyTime = 3;
+	required string ServerOrderId = 4;
+}
+
+//get buy Record
+message CSUserGetBuyRecordRqst
+{
+	required uint32 BeginIndex = 1;
+	required uint32 Size = 2;	
+}
+
+message CSUserGetBuyRecordRsp
+{
+	required uint32 BeginIndex = 1;
+	required uint32 Size = 2;
+	repeated BuyRecordContext BuyContext = 3;
+}
+
+message UserGameInitInfo
+{
+	required uint32 SeatId = 1;
+	required uint32 RejectSuit = 2;
+	repeated uint32 InitHandCards = 3;
+	repeated uint32 HuanCards = 4;
+	repeated uint32 HuanInCards = 5;
+}
+
+message UserGameOperation
+{
+	required uint32 SeatId = 1;
+	required uint32 OperateMask = 2;
+	required uint32 TagMj = 3;
+}
+
+message CSUserGameAllOperationNotify
+{
+	required uint32 ZhuangSeatId = 1;
+	required uint32 Dice1 = 2;
+	required uint32 Dice2 = 3;
+	required HUAN_SAN_ZHANG_TYPE HSZType = 4;
+	required TASK_HSZ_TYPE TaskHSZType = 5;
+	required uint32 FinishedMatchNum = 6;
+	repeated UserGameInitInfo GameInitInfo = 7;
+	repeated UserGameOperation GameOperation = 8;
+}
+
+message ClubMatchContext
+{
+	required uint32 RoomSize = 1;//房间最大人数
+	required uint32 MatchTotalCount = 2;//比赛局数，每次开局需要强制完成 的局数
+	required uint32 MatchAlreadyCount = 3;//比赛已经进行的局数
+	required string MatchName = 4;//比赛名字
+	optional string	RoomCode = 5;//房间密码
+	required uint32 MatchAlreadyPlayerCount = 6;//比赛已经进行的人数
+	required uint32 RoomId = 7;
+	required uint32 RoomDiZhu = 8; //底柱
+    required uint32 RoomMaxBeiShu = 9; //房间比赛最大倍数
+	required uint32 Deposit = 10;//保证金
+	required uint32 MinCurrencyValue = 11; //最带入货币值
+	required RoomAdvanceParam AdvanceParam = 12;//房间特殊规则
+	required uint64 RoomOwerUid = 13;//房间特殊规则
+	required TableState tableState = 14;//当前桌子状态
+	required uint64 ClubMatchOwnerId = 15;//房间创建者ID
+	required uint64 RewardCoin = 16;//奖金
+	required uint64 JoinMatchFee = 17;//报名费
+	required bool IsPriviteRoom = 18;//是不是私密房间
+	repeated uint64 InvitedUid = 19;//被邀请的玩家id
+	required uint32 MatchType= 20;//赛制类型
+}
+
+message CSUserGetClubMatchInfoRqst
+{
+	required uint32 BeginIndex = 1;
+	required uint32 Size = 2;	
+	required uint32 ClubId = 3;//队伍ID
+	required bool IsOwn = 4;
+}
+
+message CSUserGetClubMatchInfoRsp
+{
+	required uint32 BeginIndex = 1;
+	required uint32 Size = 2;
+	repeated ClubMatchContext RoomInfo = 3;
+	required bool IsOwn = 4;
+}
+
+//==========队伍相关==========
+
+enum CLUB_MEMBER_TYPE
+{
+	CLUB_MEMBER_TYPE_NONE = 0;
+	CLUB_MEMBER_TYPE_MEMBER = 1;
+	CLUB_MEMBER_TYPE_CAPTAIN = 2;
+}
+
+enum CLUB_STATUS
+{
+	CLUB_STATUS_NONE = 0;
+	CLUB_STATUS_NORMAL = 1;
+	CLUB_STATUS_BAN = 2;
+	CLUB_STATUS_WAIT_FOR_DISSOLVE = 100;
+}
+
+message ClubMemberBaseInfo
+{
+	required uint64 Uid = 1;
+	required string NickName = 2;
+	required string Avatar = 3;
+	required int32 Sex = 4;
+	required int64 GoldNum = 5;
+	required int32 IP = 6;
+}
+
+message ClubBaseInfo
+{
+	required uint64 Id = 1;
+	required string NickName = 2;
+	required uint32 LogoIndex = 3;
+	required uint32 MaxMember = 4;
+	required string Notice = 5;
+	required ClubMemberBaseInfo Captain = 6;
+	required uint32 MemberNumber = 7;
+	required uint32 Status = 8;
+	required uint64 CaptainReward = 9;
+}
+
+//队伍页面
+message CSPlayerClubPageRqst
+{
+	required uint32 Reserved = 1;
+}
+
+message CSPlayerClubPageRsp
+{
+	required uint32 MemberType = 1;
+	optional ClubBaseInfo Club = 2;
+}
+
+//查找队伍
+message CSSearchClubRqst
+{
+	required string ClubString = 1;
+}
+
+message CSSearchClubRsp
+{
+	repeated ClubBaseInfo Clubs = 1;
+}
+
+//入队申请
+message CSJoinClubRqst
+{
+	required uint64 ClubId = 1;
+}
+
+message CSJoinClubRsp
+{
+	required uint32 Reserved = 1;
+}
+
+message CSClubApplicationNotify
+{
+	required uint32 ApplicationNumber = 1;
+}
+
+//退队
+message CSQuitClubRqst
+{
+	required uint32 Reserved = 1;
+}
+
+message CSQuitClubRsp
+{
+	required uint32 Reserved = 1;
+}
+
+message CSQuitClubNotify
+{
+	required uint64 Member = 1;
+}
+
+//通知队伍信息变化
+message CSClubInfoChangeNotify
+{
+	required uint32 MemberType = 1;
+	optional ClubBaseInfo Club = 2;
+}
+
+//设置队伍信息
+message CSSetClubInfoRqst
+{
+	required uint32 LogoIndex = 1;
+	required string NickName = 2;
+	required string Notice = 3;
+}
+
+message CSSetClubInfoRsp
+{
+	required uint32 Reserved = 1;
+}
+
+//获取申请人
+message CSGetApplicantsRqst
+{
+	required uint32 Reserved = 1;
+}
+
+message CSGetApplicantsRsp
+{
+	repeated ClubMemberBaseInfo Applicants = 1;
+}
+
+//拒绝申请
+message CSRefuseApplicantRqst
+{
+	required uint64 Applicant = 1;
+}
+
+message CSRefuseApplicantRsp
+{
+	required uint64 Applicant = 1;
+}
+
+//批准申请
+message CSAcceptApplicantRqst
+{
+	required uint64 Applicant = 1;
+}
+
+message CSAcceptApplicantRsp
+{
+	required uint32 Reserved = 1;
+}
+
+message CSAddClubMemberNotify
+{
+	required ClubMemberBaseInfo NewMember = 1;
+}
+
+//获取所有玩家
+message CSGetMembersRqst
+{
+	required uint32 Reserved = 1;
+}
+
+message CSGetMembersRsp
+{
+	repeated ClubMemberBaseInfo Members = 1;
+}
+
+//踢出玩家
+message CSRemoveMemberRqst
+{
+	required uint64 Member = 1;
+}
+
+message CSRemoveMemberRsp
+{
+	required uint32 Reserved = 1;
+}
+
+message CSRemoveClubMemberNotify
+{
+	required uint64 Member = 1;
+}
+
+//解散队伍
+message CSDissolveClubRqst
+{
+	required uint32 Reserved = 1;
+}
+
+message CSDissolveClubRsp
+{
+	required uint32 Reserved = 1;
+}
+
+message Contribution
+{
+	required uint64 Uid = 1;
+	required string NickName = 2;
+	required uint64 StageContribution = 3;
+	required uint64 TotalContribution = 4;
+	required uint64 StageMatchNumber = 5;
+}
+
+//获取贡献度
+message CSGetContributionRqst
+{
+	required uint64 ClubId = 1;
+}
+message CSGetContributionRsp
+{
+	repeated Contribution contributions = 1;
+}
+message CSGetCaptainRewardRqst
+{
+	required uint32 Reserved = 1;
+}
+message CSGetCaptainRewardRsp
+{
+	required uint32 Reserved = 1;
+}
+
+
+enum PLAYER_CLUB_OPERATOR
+{
+	PLAYER_CLUB_OPERATOR_NONE = 0;
+	PLAYER_CLUB_OPERATOR_JOIN = 1;
+	PLAYER_CLUB_OPERATOR_LEAVE = 2;
+	PLAYER_CLUB_OPERATOR_ALTER_NAME = 3;
+	PLAYER_CLUB_OPERATOR_ALTER_LOGO = 4;
+	PLAYER_CLUB_OPERATOR_APPLY_DISSOLVE = 5;
+	PLAYER_CLUB_OPERATOR_BAN = 6;
+	PLAYER_CLUB_OPERATOR_CANCEL_BAN = 7;
+	PLAYER_CLUB_OPERATOR_REJECT_DISSOLVE = 8;
+}
+
+message UserClubInfo
+{
+	required uint32 ClubOperator = 1;
+	required int64 Time = 2;
+	required string Info1 = 3;
+	required string Info2 = 4;
+}
+
+message CSUserGetClubInfoRqst
+{
+	required uint32 Reserved = 1;
+}
+
+message CSUserGetClubInfoRsp
+{
+	repeated UserClubInfo ClubInfos = 1;
+}
+
+message CSUserNewClubInfoNotify
+{
+	required UserClubInfo ClubInfo = 1;
+}
+
+message CSClubMemberOnlineNotify
+{
+	required ClubMemberBaseInfo Member = 1;
+}
+
+message CSUserInviteInPriviteRoomNotify
+{
+	required uint64 InviteUid = 1;
+	required uint32 RoomId = 2;
+	required uint64 RewardCoin = 3;//奖金
+	required uint64 JoinMatchFee = 4;//报名费
+	required bool IsPriviteRoom = 5;//是不是私密房间
+	required uint32 MatchType= 6;//赛制类型
+	required uint32 InviteCount = 7;//邀请的人数
+}
+
+message CSUserEnterZfbTableRqst
+{
+	required ZFB_TABLE_TYPE TableType = 1;//桌子类型
+}
+
+message CSUserEnterZfbTableRsp
+{
+	required bool EnterRoomSuccess = 1;
+	required uint64 MinCurrencyValue = 2; //房间最小带入
+	required ZFB_TABLE_TYPE TableType = 3;//桌子类型
+	required uint64 TimeNow = 4;
+}
+
+message CSUserZfbTableChangeInfoNotity
+{
+	required uint32 FirstDice = 1; //第一个色子数值
+	required uint32 SecondDice = 2;//第二个色子数值
+	required uint64 SettlementId = 3;//每轮比赛的计算编号
+	required uint64 NextMatchEndTime = 4;//下一局比赛开始时间
+	required TableState tableState = 5;//当前桌子状态
+
+	required uint32 OwnYaZhuangCoin = 6;//玩家押注庄赢
+	required uint32 OwnYaIdleCoin = 7;//玩家押注闲赢
+	required uint32 OwnYaHeCoin = 8;//玩家押注和赢
+	required uint32 OwnYaLeoparCoin = 9;//玩家押注豹子赢
+	required uint32 OwnYaTianBarCoin = 10;//玩家押注天杠赢
+
+	required uint32 ZhuangCoinValue = 11;//庄金币总数
+	required uint32 IdleCoinValue = 12;//闲金币总数
+	required uint32 HeCoinValue = 13;//和币总数
+	required uint32 LeoparCoinValue = 14;//豹子金币总数
+	required uint32 TianBarValue = 15;//天杠金币总数
+	required ZFB_TABLE_TYPE TableType = 16;//桌子类型
+	
+	repeated uint32 Mjs = 17;//顺序是1：庄1 2：庄2，3：闲1 4：闲2
+}
+
+message CSUserZfbSettleInfoNotity
+{
+	repeated uint32 Mjs = 1;//顺序是1：庄1 2：庄2，3：闲1 4：闲2
+	required uint64 NextMatchBeginTime = 2;//下一局比赛开始时间
+	required int64 WinCoin = 3;//赢了多小金币
+	required ZFB_TABLE_TYPE TableType = 4;//桌子类型
+}
+
+
+message ZfbRecordInfo
+{
+	required uint32 MatchId = 1;//第几局
+	required ZFB_TABLE_RULES_TYPE ResuleType = 2;//本剧结果类型,庄赢，闲赢，和
+	required uint32 TianBarCount = 3;//天杠数量
+	required uint32 LeoparCount = 4;//豹子数量
+}
+
+message CSUserZfbRecordNotity
+{
+	required ZFB_TABLE_TYPE TableType = 1;//桌子类型
+	repeated ZfbRecordInfo RecordInfo = 2;//每一局的战绩
+}
+
+message CSUserLeaveZfbTableRqst
+{
+	required ZFB_TABLE_TYPE TableType = 1;//桌子类型
+}
+
+message CSUserLeaveZfbTableRsp
+{
+	required ZFB_TABLE_TYPE TableType = 1;//桌子类型
+}
+
+message CSUserYaZhuInZfbRqst
+{
+	required ZFB_TABLE_TYPE TableType = 1;//桌子类型
+	required uint64 DiZhu = 2;//底注
+	required ZFB_TABLE_RULES_TYPE YaZhuType = 3;//压的类型
+}
+
+message CSUserYaZhuInZfbRsp
+{
+	required ZFB_TABLE_TYPE TableType = 1;//桌子类型
+	required uint64 DiZhu = 2;//底注
+	required ZFB_TABLE_RULES_TYPE YaZhuType = 3;//压的类型
+}
