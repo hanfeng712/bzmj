@@ -1,0 +1,186 @@
+package lobbyserver
+
+import (
+	"fmt"
+	"logger"
+	//	"math/rand"
+	"net"
+	"rpc"
+	"rpcplus"
+
+	"rpc/proto"
+	//	"strconv"
+	"common"
+	"sync"
+	"time"
+)
+
+type serverInfo struct {
+	PlayerCount uint16
+	ServerIp    string
+}
+
+type LobbyServices struct {
+	l            sync.RWMutex
+	lgs          *rpcplus.Client			//日志服务器的连接段
+	m            map[uint32]serverInfo		//维护每个节点服务器的在线人数
+	cnss         []*rpcplus.Client			//维护对每个节点的连接
+	maincache    *common.CachePool
+	clancache    *common.CachePool
+	stableServer string						//在线人数最小的节点服务器
+}
+
+var lobbyService *LobbyServices
+//创建大厅对象
+func NewLobbyServer(cfg common.LobbyConfig) (server *LobbyService){
+	//数据库服务
+	dbclient.Init()
+	var logCfg common.LogServerCfg
+	if err := common.ReadLogConfig(&logCfg); err != nil {
+		logger.Fatal("%v", err)
+	}
+	logConn, err := net.Dial("tcp", logCfg.LogHost)
+	if err != nil {
+		logger.Fatal("connect logserver failed %s", err.Error())
+	}
+	lobbyService = &LobbyServices{
+		lgs:      rpcplus.NewClient(logConn),
+		cnss:     make([]*rpcplus.Client, 0, 1),
+		m: make(map[uint32]serverInfo),
+	}
+	//初始化cache
+	lobbyService.Info("Init Cache %v", cfg.MainCacheProfile)
+	lobbyService.maincache = common.NewCachePool(cfg.MainCacheProfile)
+
+	logger.Info("Init Cache %v", cfg.ClanCacheProfile)
+	server.clancache = common.NewCachePool(cfg.ClanCacheProfile)
+}
+//创建其他节点服务器连接服务器
+var pLobbyServices *LobbyServices
+
+func CreateLobbyServicesForCnserver(listener net.Listener) *LobbyServices {
+	pLobbyServices = &LobbyServices{m: make(map[uint32]serverInfo)}
+	rpcServer := rpcplus.NewServer()
+
+	rpcServer.Register(pLobbyServices)
+
+	//rpcServer.HandleHTTP("/center/rpc", "/debug/rpcdebug/rpc")
+
+	var uConnId uint32 = 0
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			logger.Error("gateserver StartServices %s", err.Error())
+			break
+		}
+
+		uConnId++
+		go func(uConnId uint32) {
+
+			pLobbyServices.l.Lock()
+			pLobbyServices.m[uConnId] = serverInfo{0, ""}
+			pLobbyServices.l.Unlock()
+
+
+			rpcServer.ServeConnWithContext(conn, uConnId)
+
+			pLobbyServices.l.Lock()
+			delete(pLobbyServices.m, uConnId)
+			pLobbyServices.l.Unlock()
+
+		}(uConnId)
+	}
+
+	return pLobbyServices
+}
+
+//更新每个服务器的在线人数
+func (self *LobbyServices) UpdateCnsPlayerCount(uConnId uint32, info *proto.SendCnsInfo, result *proto.SendCnsInfoResult) error {
+	self.l.Lock()
+	self.m[uConnId] = serverInfo{info.PlayerCount, info.ServerIp}
+
+	playerCountMax := uint16(0xffff) //不会有哪个服务器更大吧
+	self.stableServer = ""
+	for _, v := range self.m {
+		if len(v.ServerIp) > 0 && v.PlayerCount < playerCountMax {
+			playerCountMax = v.PlayerCount
+			self.stableServer = v.ServerIp
+		}
+	}
+
+	self.l.Unlock()
+
+	//fmt.Printf("recv cns msg : server %d , player count %d, player ip = %s \n", info.ServerId, info.PlayerCount, info.ServerIp)
+	return nil
+}
+
+func (self *LobbyServices) getStableCns() (cnsIp string) {
+	self.l.RLock()
+	defer self.l.RUnlock()
+	return self.stableServer
+}
+
+type LobbyServicesForClient struct {
+	m string
+}
+
+//创建客户端连接服务器
+var lobbyServicesForClient *LobbyServicesForClient
+
+func CreateLobbyServicesForClient(listener net.Listener) *LobbyServicesForClient {
+
+	lobbyServicesForClient = &LobbyServicesForClient{}
+	rpcServer := rpc.NewServer()
+	rpcServer.Register(lobbyServicesForClient)
+
+	rpcServer.RegCallBackOnConn(
+		func(conn rpc.RpcConn) {
+			lobbyServicesForClient.onConn(conn)
+		},
+	)
+
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			logger.Error("gateserver StartServices %s", err.Error())
+			break
+		}
+		go func() {
+			rpcConn := rpc.NewProtoBufConn(rpcServer, conn, 4, 0)
+			rpcServer.ServeConn(rpcConn)
+		}()
+	}
+
+	return lobbyServicesForClient
+}
+
+func WriteResult(conn rpc.RpcConn, value interface{}) bool {
+	err := conn.WriteObj(value)
+	if err != nil {
+		logger.Info("WriteResult Error %s", err.Error())
+		return false
+	}
+	return true
+}
+
+func (c *LobbyServicesForClient) onConn(conn rpc.RpcConn) {
+	rep := rpc.LoginCnsInfo{}
+
+	cnsIp := pLobbyServices.getStableCns()
+	rep.CnsIp = &cnsIp
+	gasinfo := fmt.Sprintf("%s;%d", conn.GetRemoteIp(), time.Now().Unix())
+	logger.Info("Client(%s) -> CnServer(%s)", conn.GetRemoteIp(), cnsIp)
+	// encode
+	encodeInfo := common.Base64Encode([]byte(gasinfo))
+
+	gasinfo = fmt.Sprintf("%s;%s", gasinfo, encodeInfo)
+
+	//fmt.Printf("%s \n", gasinfo)
+
+	rep.GsInfo = &gasinfo
+
+	WriteResult(conn, &rep)
+
+	time.Sleep(10 * time.Second)
+	conn.Close()
+}
