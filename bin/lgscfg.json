@@ -9,7 +9,7 @@
 	"user" : "root",
 	"pass" : "ppedbs",
 	"dbname" : "dpsglog",
-	"charset" : "latin1"
+	"charset" : "latin1",
 
 	"maincache": {
 		"host": "127.0.0.1",

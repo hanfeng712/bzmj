@@ -5,7 +5,7 @@ import (
 	//"csvcfg"
 	"jscfg"
 	"logger"
-	"os"
+	//"os"
 	"path"
 	//	"strings"
 )
@@ -36,12 +36,36 @@ type LogServerCfg struct {
 	GcTime    uint8
 }
 
+//cns配置
+type CnsConfig struct {
+	CnsHost          string
+	CnsHostForClient string
+	CnsForCenter     string
+	FsHost           []string
+	DebugHost        string
+	GcTime           uint8
+}
+
 //log
 func ReadLogConfig(cfg *LogServerCfg) error {
-	cfgpath, _ := os.Getwd()
+	//cfgpath := os.Getwd()
+	cfgpath := "/home/hanfeng/golang/src/bzmj/bin"
 
 	if err := jscfg.ReadJson(path.Join(cfgpath, "lgscfg.json"), cfg); err != nil {
 		logger.Fatal("read chat config failed, %v", err)
+		return err
+	}
+
+	return nil
+}
+
+//cns服务器配置
+func ReadCnsServerConfig(file string, cfg *CnsConfig) error {
+	//cfgpath := os.Getwd()
+	cfgpath := "/home/hanfeng/golang/src/bzmj/bin"
+
+	if err := jscfg.ReadJson(path.Join(cfgpath, file), cfg); err != nil {
+		logger.Fatal("read cnserver config failed, %v", err)
 		return err
 	}
 

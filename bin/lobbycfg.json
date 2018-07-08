@@ -3,7 +3,7 @@
     "lobbyIpForServer" : "127.0.0.1:8850",
 	"lobbyIpForClient" : "0.0.0.0:7850",
 	"DebugHost" : "127.0.0.1:5850",
-    "GcTime" : 15
+    "GcTime" : 15,
 	"lobby的更新时间" : "每两个小时更新一次，执行单位为小时",
 	"UpdateTime" : "2",
 	"maincache": {

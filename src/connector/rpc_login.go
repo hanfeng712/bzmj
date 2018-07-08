@@ -1,5 +1,6 @@
 package connector
 
+/*
 import (
 	"common"
 	//	"errorValue"
@@ -16,3 +17,4 @@ func (self *CNServer) Login(conn rpc.RpcConn, login rpc.Login) error {
 func (self *CNServer) login(conn rpc.RpcConn, login *rpc.Login) error {
 	return nil
 }
+*/

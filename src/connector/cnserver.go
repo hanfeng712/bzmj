@@ -1,7 +1,7 @@
 package connector
 
 import (
-	"common"
+	//	"common"
 	"logger"
 	"net"
 	"rpc"
@@ -18,6 +18,7 @@ const (
 var cns *CNServer
 
 type CNServer struct {
+	lobbyserver     *rpcplus.Client
 	players         map[uint64]*player
 	playersbyid     map[uint64]*player
 	l               sync.RWMutex
@@ -26,6 +27,7 @@ type CNServer struct {
 	listener        net.Listener
 }
 
+/*
 func NewCNServer() *CNServer {
 	server := &CNServer{
 		players:     make(map[uint64]*player),
@@ -35,7 +37,56 @@ func NewCNServer() *CNServer {
 	cns = server
 	return cns
 }
+*/
 
+func NewCNServer(cfg *common.CnsConfig) (server *CNServer) {
+	//数据库服务
+
+	dbclient.Init()
+	var lobbycfg common.LobbyServerCfg
+	if err = common.ReadGateConfig(&lobbycfg); err != nil {
+		return
+	}
+	lobbyConn, err := net.Dial("tcp", lobbycfg.LobbyIpForServer)
+	if err != nil {
+		logger.Fatal("%s", err.Error())
+	}
+	/*
+		var logCfg common.LogServerCfg
+		if err := common.ReadLogConfig(&logCfg); err != nil {
+			logger.Fatal("%v", err)
+		}
+		logConn, err := net.Dial("tcp", logCfg.LogHost)
+		if err != nil {
+			logger.Fatal("connect logserver failed %s", err.Error())
+		}
+
+			var chatcfg common.ChatServerCfg
+			if err = common.ReadChatConfig(&chatcfg); err != nil {
+				return
+			}
+			chatConn, err := net.Dial("tcp", chatcfg.ListenForServer)
+			if err != nil {
+				logger.Fatal("connect chatserver failed %s", err.Error())
+			}
+	*/
+	server = &CNServer{
+		lobbyserver: rpcplus.NewClient(lobbyConn),
+		//logRpcConn:    rpcplus.NewClient(logConn),
+		players:       make(map[uint64]*player),
+		otherplayers:  make(map[uint64]*player),
+		playersbyid:   make(map[string]*player),
+		centerService: &CenterService{},
+		//chatRpcConn:   rpcplus.NewClient(chatConn),
+		//rankMgr:       CreateRankMgr()
+	}
+
+	cns = server
+
+	//loadConfigFiles(common.GetDesignerDir())
+
+	return
+}
 func (self *CNServer) StartClientService(l int, wg *sync.WaitGroup) {
 	lListerIp := "127.0.0.1:5300"
 
@@ -116,6 +167,10 @@ func (self *CNServer) onDisConn(conn rpc.RpcConn) {
 	self.delPlayer(conn.GetId())
 }
 
+func (self *CNServer) EndService() {
+	self.gateserver.Close()
+}
+
 //销毁玩家
 func (self *CNServer) delPlayer(connId uint64) {
 	ts("CNServer:delPlayer", connId)
@@ -132,6 +187,7 @@ func (self *CNServer) delPlayer(connId uint64) {
 	}
 }
 
+/*
 func (self *CNServer) AnswerClientError(conn rpc.RpcConn, value uint32) {
 	logger.Info("player:AnswerClientError")
 	var l uint32 = 1
@@ -150,3 +206,4 @@ func (self *CNServer) SendMsgToPlayer(msg interface{}, uid uint64, method string
 
 	lPlayer.SendMsgToClient(msg, method)
 }
+*/

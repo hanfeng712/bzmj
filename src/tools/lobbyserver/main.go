@@ -17,11 +17,13 @@ var ipcfg common.LobbyServerCfg
 
 func main() {
 
-	cfgpath, _ := os.Getwd()
+	//cfgpath, _ := os.Getwd()
+	cfgpath := "/home/hanfeng/golang/src/bzmj/bin"
 	cfg, err := os.Open(path.Join(cfgpath, "lobbycfg.json"))
 
 	if err != nil {
-		println("can't find gscfg.json")
+		println("can't find lobbycfg.json")
+		println(cfgpath)
 		return
 	}
 
@@ -31,6 +33,7 @@ func main() {
 
 	if err := deccfg.Decode(&ipcfg); err != nil {
 		println("can't find gscfg.json")
+		println(err.Error())
 		return
 	}
 

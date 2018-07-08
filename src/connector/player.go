@@ -1,7 +1,7 @@
 package connector
 
 import (
-	"common"
+	//	"common"
 	"fmt"
 	"logger"
 	"rpc"
@@ -40,6 +40,7 @@ func (p *player) OnQuit() {
 	logger.Info("OnQuit p.conn.Lock() end")
 }
 
+/*
 func (self *player) AnswerClientError(value uint32) {
 	logger.Info("player:AnswerClientError")
 	var l uint32 = 1
@@ -54,3 +55,4 @@ func (self *player) SendMsgToClient(msg interface{}, method string) {
 	logger.Info("player:SendMsgToClient;uid:%d", self.GetUid())
 	common.WriteClientResult(self.mConn, method, msg)
 }
+*/

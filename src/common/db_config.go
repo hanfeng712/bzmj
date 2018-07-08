@@ -3,7 +3,7 @@ package common
 import (
 	"jscfg"
 	"logger"
-	"os"
+	//	"os"
 	"path"
 )
 
@@ -49,8 +49,8 @@ type DBConfig struct {
 
 //读取配置表
 func ReadDbConfig(file string, cfg *DBConfig) error {
-	cfgpath, _ := os.Getwd()
-
+	//cfgpath, _ := os.Getwd()
+	cfgpath := "/home/hanfeng/golang/src/bzmj/bin"
 	if err := jscfg.ReadJson(path.Join(cfgpath, file), cfg); err != nil {
 		logger.Fatal("read center config failed, %v", err)
 		return err
