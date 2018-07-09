@@ -103,7 +103,7 @@ func StartCenterService(self *CNServer, listener net.Listener, cfg *common.CnsCo
 
 	req := &proto.CenterConnCns{Addr: listener.Addr().String()}
 	rst := &proto.CenterConnCnsResult{}
-	self.lobbyService.Go("LobbyServices.LobbyConnCns", req, rst, nil)
+	self.lobbyserver.Go("LobbyServices.LobbyConnCns", req, rst, nil)
 
 	connLobby, err := listener.Accept()
 	if err != nil {
@@ -125,7 +125,87 @@ func StartCenterService(self *CNServer, listener net.Listener, cfg *common.CnsCo
 
 }
 
-func (self *CNServer) StartClientService(l int, wg *sync.WaitGroup) {
+func (self *CNServer) StartClientService(cfg *common.CnsConfig, wg *sync.WaitGroup) {
+
+	rpcServer := rpc.NewServer()
+	self.serverForClient = rpcServer
+
+	//lockclient.Init()
+	//accountclient.Init()
+
+	rpcServer.Register(cns)
+	rpcServer.RegCallBackOnConn(
+		func(conn rpc.RpcConn) {
+			self.onConn(conn)
+		},
+	)
+
+	rpcServer.RegCallBackOnDisConn(
+		func(conn rpc.RpcConn) {
+			self.onDisConn(conn)
+		},
+	)
+
+	rpcServer.RegCallBackOnCallBefore(
+		func(conn rpc.RpcConn) {
+			conn.Lock()
+		},
+	)
+
+	rpcServer.RegCallBackOnCallAfter(
+		func(conn rpc.RpcConn) {
+			conn.Unlock()
+		},
+	)
+
+	listener, err := net.Listen("tcp", Cfg.CnsHost)
+	if err != nil {
+		logger.Fatal("net.Listen: %s", err.Error())
+	}
+
+	self.listener = listener
+	self.listenIp = cfg.CnsHostForClient
+
+	//self.sendPlayerCountToGateServer()
+
+	wg.Add(1) //监听client要算一个
+	go func() {
+		for {
+			//For Client/////////////////////////////
+			time.Sleep(time.Millisecond * 5)
+			conn, err := self.listener.Accept()
+
+			if err != nil {
+				logger.Error("cns StartServices %s", err.Error())
+				wg.Done() // 退出监听就要减去一个
+				break
+			}
+
+			wg.Add(1) // 这里是给客户端增加计数
+			go func() {
+				rpcConn := rpc.NewProtoBufConn(rpcServer, conn, 128, 45)
+				defer func() {
+					if r := recover(); r != nil {
+						logger.Error("player rpc runtime error begin:", r)
+
+						rpcConn.Unlock()
+						debug.PrintStack()
+						self.onDisConn(rpcConn)
+						rpcConn.Close()
+
+						logger.Error("player rpc runtime error end ")
+					}
+					wg.Done() // 客户端退出减去计数
+				}()
+
+				rpcServer.ServeConn(rpcConn)
+			}()
+		}
+	}()
+}
+
+/*
+func (self *CNServer) StartClientService(cfg *common.CnsConfig, wg *sync.WaitGroup) {
 	lListerIp := "127.0.0.1:5300"
 
 	lRpcServer := rpc.NewServer()
@@ -194,7 +274,7 @@ func (self *CNServer) StartClientService(l int, wg *sync.WaitGroup) {
 		}
 	}()
 }
-
+*/
 func (c *CNServer) onConn(conn rpc.RpcConn) {
 }
 
@@ -207,6 +287,11 @@ func (self *CNServer) onDisConn(conn rpc.RpcConn) {
 
 func (self *CNServer) EndService() {
 	self.lobbyserver.Close()
+}
+
+func (self *CNServer) Quit() {
+	self.listener.Close()
+	self.serverForClient.Quit()
 }
 
 //销毁玩家
