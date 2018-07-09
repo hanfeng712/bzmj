@@ -101,6 +101,26 @@ func CreateLobbyServicesForCnserver(server *LobbyServices, listener net.Listener
 	return pLobbyServices
 }
 
+func (self *LobbyServices) LobbyConnCns(req *proto.CenterConnCns, reply *proto.CenterConnCnsResult) (err error) {
+	logger.Info("Center:CenterConnCns:%s", req.Addr)
+
+	conn, err := net.Dial("tcp", req.Addr)
+	if err != nil {
+		logger.Fatal("%s", err.Error())
+		reply.Ret = false
+		return
+	}
+
+	tmp := rpcplus.NewClient(conn)
+	self.l.Lock()
+	self.cnss = append(self.cnss, tmp)
+	self.theFirstUpdate(tmp)
+	self.l.Unlock()
+	reply.Ret = true
+
+	return nil
+}
+
 //更新每个服务器的在线人数
 func (self *LobbyServices) UpdateCnsPlayerCount(uConnId uint32, info *proto.SendCnsInfo, result *proto.SendCnsInfoResult) error {
 	self.l.Lock()

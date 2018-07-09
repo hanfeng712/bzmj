@@ -72,6 +72,19 @@ func ReadCnsServerConfig(file string, cfg *CnsConfig) error {
 	return nil
 }
 
+//gate
+func ReadLobbyConfig(cfg *LobbyServerCfg) error {
+	//cfgpath, _ := os.Getwd()
+	cfgpath := "/home/hanfeng/golang/src/bzmj/bin"
+
+	if err := jscfg.ReadJson(path.Join(cfgpath, "lobbycfg.json"), cfg); err != nil {
+		logger.Fatal("read gate config failed, %v", err)
+		return err
+	}
+
+	return nil
+}
+
 /*
 const (
 	ROOM_TICK_TIME            = 2000

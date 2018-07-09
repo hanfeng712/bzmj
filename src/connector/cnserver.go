@@ -1,10 +1,14 @@
 package connector
 
 import (
-	//	"common"
+	"common"
+	"fmt"
 	"logger"
 	"net"
+	"os"
 	"rpc"
+	proto "rpc/proto"
+	"rpcplus"
 	"runtime/debug"
 	"sync"
 	"time"
@@ -16,6 +20,10 @@ const (
 )
 
 var cns *CNServer
+var Cfg common.CnsConfig
+
+type LobbyService struct {
+}
 
 type CNServer struct {
 	lobbyserver     *rpcplus.Client
@@ -25,6 +33,7 @@ type CNServer struct {
 	serverForClient *rpc.Server
 	listenIp        string
 	listener        net.Listener
+	lobbyService    *LobbyService
 }
 
 /*
@@ -42,9 +51,9 @@ func NewCNServer() *CNServer {
 func NewCNServer(cfg *common.CnsConfig) (server *CNServer) {
 	//数据库服务
 
-	dbclient.Init()
+	//	dbclient.Init()
 	var lobbycfg common.LobbyServerCfg
-	if err = common.ReadGateConfig(&lobbycfg); err != nil {
+	if err := common.ReadLobbyConfig(&lobbycfg); err != nil {
 		return
 	}
 	lobbyConn, err := net.Dial("tcp", lobbycfg.LobbyIpForServer)
@@ -73,10 +82,9 @@ func NewCNServer(cfg *common.CnsConfig) (server *CNServer) {
 	server = &CNServer{
 		lobbyserver: rpcplus.NewClient(lobbyConn),
 		//logRpcConn:    rpcplus.NewClient(logConn),
-		players:       make(map[uint64]*player),
-		otherplayers:  make(map[uint64]*player),
-		playersbyid:   make(map[string]*player),
-		centerService: &CenterService{},
+		players:      make(map[uint64]*player),
+		playersbyid:  make(map[uint64]*player),
+		lobbyService: &LobbyService{},
 		//chatRpcConn:   rpcplus.NewClient(chatConn),
 		//rankMgr:       CreateRankMgr()
 	}
@@ -87,6 +95,36 @@ func NewCNServer(cfg *common.CnsConfig) (server *CNServer) {
 
 	return
 }
+
+func StartCenterService(self *CNServer, listener net.Listener, cfg *common.CnsConfig) {
+	//连接center
+	rpcLobbyServer := rpcplus.NewServer()
+	rpcLobbyServer.Register(self.lobbyService)
+
+	req := &proto.CenterConnCns{Addr: listener.Addr().String()}
+	rst := &proto.CenterConnCnsResult{}
+	self.lobbyService.Go("LobbyServices.LobbyConnCns", req, rst, nil)
+
+	connLobby, err := listener.Accept()
+	if err != nil {
+		logger.Error("StartCenterServices %s", err.Error())
+		os.Exit(0)
+	}
+
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Printf("StartCenterService runtime error:", r)
+
+				debug.PrintStack()
+			}
+		}()
+		rpcLobbyServer.ServeConn(connLobby)
+		connLobby.Close()
+	}()
+
+}
+
 func (self *CNServer) StartClientService(l int, wg *sync.WaitGroup) {
 	lListerIp := "127.0.0.1:5300"
 
@@ -168,7 +206,7 @@ func (self *CNServer) onDisConn(conn rpc.RpcConn) {
 }
 
 func (self *CNServer) EndService() {
-	self.gateserver.Close()
+	self.lobbyserver.Close()
 }
 
 //销毁玩家
