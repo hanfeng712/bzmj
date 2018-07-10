@@ -62,7 +62,7 @@ func main() {
 
 	handler := func(s os.Signal, arg interface{}) {
 		fmt.Printf("handle signal: %v\n", s)
-		println("gateserver close")
+		println("lobbyserver close")
 		os.Exit(0)
 	}
 
