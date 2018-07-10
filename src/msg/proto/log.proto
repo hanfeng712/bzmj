@@ -1,0 +1,9 @@
+syntax = "proto2";
+package proto;
+
+message logPlayerLoginLogout{
+	required string 	playerid = 1;
+	required int64 		time = 2;
+	required bool		logout = 3;
+	required string		ip = 4;
+}
