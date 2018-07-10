@@ -114,7 +114,7 @@ func (self *LobbyServices) LobbyConnCns(req *proto.CenterConnCns, reply *proto.C
 	tmp := rpcplus.NewClient(conn)
 	self.l.Lock()
 	self.cnss = append(self.cnss, tmp)
-	self.theFirstUpdate(tmp)
+	//self.theFirstUpdate(tmp)
 	self.l.Unlock()
 	reply.Ret = true
 
@@ -123,6 +123,7 @@ func (self *LobbyServices) LobbyConnCns(req *proto.CenterConnCns, reply *proto.C
 
 //更新每个服务器的在线人数
 func (self *LobbyServices) UpdateCnsPlayerCount(uConnId uint32, info *proto.SendCnsInfo, result *proto.SendCnsInfoResult) error {
+	logger.Info("LobbyServices:UpdateCnsPlayerCount:<ENTER>")
 	self.l.Lock()
 	self.m[uConnId] = serverInfo{info.PlayerCount, info.ServerIp}
 
@@ -136,7 +137,7 @@ func (self *LobbyServices) UpdateCnsPlayerCount(uConnId uint32, info *proto.Send
 	}
 
 	self.l.Unlock()
-
+	logger.Info("LobbyServices:UpdateCnsPlayerCount:<LEAVE>")
 	//fmt.Printf("recv cns msg : server %d , player count %d, player ip = %s \n", info.ServerId, info.PlayerCount, info.ServerIp)
 	return nil
 }

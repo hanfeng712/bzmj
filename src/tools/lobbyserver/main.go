@@ -87,6 +87,6 @@ func main() {
 		}
 	}
 
-	println("gateserver close")
+	println("lobbyserver close")
 
 }

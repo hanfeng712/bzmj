@@ -24,7 +24,7 @@ func main() {
 
 	flag.Parse()
 
-	if err := common.ReadCnsServerConfig(*csvDir, &connector.Cfg); err != nil {
+	if err := common.ReadCnsServerConfig("gas1.json", &connector.Cfg); err != nil {
 		logger.Fatal("load cns config error", *csvDir, err)
 		return
 	}

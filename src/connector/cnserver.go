@@ -30,25 +30,15 @@ type CNServer struct {
 	players         map[uint64]*player
 	playersbyid     map[uint64]*player
 	l               sync.RWMutex
+	id              uint8
 	serverForClient *rpc.Server
 	listenIp        string
 	listener        net.Listener
 	lobbyService    *LobbyService
 }
 
-/*
-func NewCNServer() *CNServer {
-	server := &CNServer{
-		players:     make(map[uint64]*player),
-		playersbyid: make(map[uint64]*player),
-	}
-
-	cns = server
-	return cns
-}
-*/
-
 func NewCNServer(cfg *common.CnsConfig) (server *CNServer) {
+	logger.Info("CNServer:NewCNServer:<ENTER>")
 	//数据库服务
 
 	//	dbclient.Init()
@@ -58,7 +48,7 @@ func NewCNServer(cfg *common.CnsConfig) (server *CNServer) {
 	}
 	lobbyConn, err := net.Dial("tcp", lobbycfg.LobbyIpForServer)
 	if err != nil {
-		logger.Fatal("%s", err.Error())
+		logger.Fatal("CNServer:NewCNServer:res:%s", err.Error())
 	}
 	/*
 		var logCfg common.LogServerCfg
@@ -85,19 +75,20 @@ func NewCNServer(cfg *common.CnsConfig) (server *CNServer) {
 		players:      make(map[uint64]*player),
 		playersbyid:  make(map[uint64]*player),
 		lobbyService: &LobbyService{},
-		//chatRpcConn:   rpcplus.NewClient(chatConn),
-		//rankMgr:       CreateRankMgr()
 	}
 
+	server.RegisterReconnect()
 	cns = server
 
 	//loadConfigFiles(common.GetDesignerDir())
-
+	logger.Info("CNServer:NewCNServer:<LEAVE>")
 	return
 }
 
 func StartCenterService(self *CNServer, listener net.Listener, cfg *common.CnsConfig) {
-	//连接center
+	logger.Info("CNServer:StartCenterService:<ENTER>")
+	self.listener = listener
+	//注册其他节点连接端
 	rpcLobbyServer := rpcplus.NewServer()
 	rpcLobbyServer.Register(self.lobbyService)
 
@@ -122,11 +113,11 @@ func StartCenterService(self *CNServer, listener net.Listener, cfg *common.CnsCo
 		rpcLobbyServer.ServeConn(connLobby)
 		connLobby.Close()
 	}()
-
+	logger.Info("CNServer:StartCenterService:<LEAVE>")
 }
 
 func (self *CNServer) StartClientService(cfg *common.CnsConfig, wg *sync.WaitGroup) {
-
+	logger.Info("CNServer:StartClientService:<ENTER>")
 	rpcServer := rpc.NewServer()
 	self.serverForClient = rpcServer
 
@@ -166,7 +157,7 @@ func (self *CNServer) StartClientService(cfg *common.CnsConfig, wg *sync.WaitGro
 	self.listener = listener
 	self.listenIp = cfg.CnsHostForClient
 
-	//self.sendPlayerCountToGateServer()
+	self.sendPlayerCountToGateServer()
 
 	wg.Add(1) //监听client要算一个
 	go func() {
@@ -202,84 +193,15 @@ func (self *CNServer) StartClientService(cfg *common.CnsConfig, wg *sync.WaitGro
 			}()
 		}
 	}()
+	logger.Info("CNServer:StartClientService:<LEAVE>")
 }
 
-/*
-func (self *CNServer) StartClientService(cfg *common.CnsConfig, wg *sync.WaitGroup) {
-	lListerIp := "127.0.0.1:5300"
-
-	lRpcServer := rpc.NewServer()
-	self.serverForClient = lRpcServer
-	lRpcServer.Register(cns)
-
-	lRpcServer.RegCallBackOnConn(
-		func(conn rpc.RpcConn) {
-			self.onConn(conn)
-		},
-	)
-
-	lRpcServer.RegCallBackOnDisConn(
-		func(conn rpc.RpcConn) {
-			self.onDisConn(conn)
-		},
-	)
-
-	lRpcServer.RegCallBackOnCallBefore(
-		func(conn rpc.RpcConn) {
-			conn.Lock()
-		},
-	)
-
-	lRpcServer.RegCallBackOnCallAfter(
-		func(conn rpc.RpcConn) {
-			conn.Unlock()
-		},
-	)
-
-	listener, err := net.Listen("tcp", "127.0.0.1:7900")
-	if err != nil {
-		logger.Fatal("net.Listen: %s", err.Error())
-	}
-
-	self.listener = listener
-	self.listenIp = lListerIp
-
-	wg.Add(1) //监听client要算一个
-	go func() {
-		for {
-			time.Sleep(time.Millisecond * 5)
-			conn, err := self.listener.Accept()
-			logger.Info("Accept one")
-			if err != nil {
-				logger.Error("cns StartServices %s", err.Error())
-				wg.Done() //退出监听就要减去一个
-			}
-
-			wg.Add(1) // 这里是给客户端增加计数
-			go func() {
-				rpcConn := rpc.NewProtoBufConn(lRpcServer, conn, 128, 45)
-				defer func() {
-					if r := recover(); r != nil {
-						logger.Error("player rpc runtime error begin:", r)
-						debug.PrintStack()
-						self.onDisConn(rpcConn)
-						rpcConn.Close()
-
-						logger.Error("player rpc runtime error end ")
-					}
-					wg.Done() // 客户端退出减去计数
-				}()
-				lRpcServer.ServeConn(rpcConn)
-			}()
-		}
-	}()
-}
-*/
 func (c *CNServer) onConn(conn rpc.RpcConn) {
 }
 
 func (self *CNServer) onDisConn(conn rpc.RpcConn) {
 	ts("CNServer:onDisConn", conn.GetId())
+	logger.Info("CNServer:StartClientService:<ENTER>,connId:%d", conn.GetId())
 	defer te("CNServer:onDisConn", conn.GetId())
 
 	self.delPlayer(conn.GetId())
@@ -292,6 +214,71 @@ func (self *CNServer) EndService() {
 func (self *CNServer) Quit() {
 	self.listener.Close()
 	self.serverForClient.Quit()
+}
+
+func (self *CNServer) loadConfigFiles() {
+	return
+}
+
+func (self *CNServer) GetServerId() uint8 {
+	return self.id
+}
+
+func (self *CNServer) sendPlayerCountToGateServer() {
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Printf("sendPlayerCountToGateServer runtime error:", r)
+
+				debug.PrintStack()
+			}
+		}()
+
+		for {
+
+			time.Sleep(5 * time.Second)
+
+			self.l.RLock()
+			playerCount := uint32(3) //len(self.players))
+			self.l.RUnlock()
+
+			var ret proto.SendCnsInfoResult
+
+			err := self.lobbyserver.Call("lobbyService.UpdateCnsPlayerCount", proto.SendCnsInfo{999, uint16(playerCount), self.listenIp}, &ret)
+
+			if err != nil {
+				logger.Error("Error On lobbyService.UpdateCnsPlayerCount : %s", err.Error())
+				return
+			}
+
+		}
+
+	}()
+}
+
+func (self *CNServer) RegisterReconnect() {
+	//注册大厅重连机制
+	self.lobbyserver.AddDisCallback(func(err error) {
+		logger.Info("disconnected error:", err)
+		self.ReConnectLobby()
+	})
+}
+func (self *CNServer) ReConnectLobby() {
+	logger.Info("CNServer:ReConnectLobby:<ENTER>")
+	var lobbycfg common.LobbyServerCfg
+	if err := common.ReadLobbyConfig(&lobbycfg); err != nil {
+		return
+	}
+	lobbyConn, err := net.Dial("tcp", lobbycfg.LobbyIpForServer)
+	if err != nil {
+		logger.Fatal("%s", err.Error())
+	}
+	self.lobbyserver = rpcplus.NewClient(lobbyConn)
+	req := &proto.CenterConnCns{Addr: self.listener.Addr().String()}
+	rst := &proto.CenterConnCnsResult{}
+	self.lobbyserver.Go("LobbyServices.LobbyConnCns", req, rst, nil)
+	logger.Info("CNServer:ReConnectLobby:<LEAVE>")
+	return
 }
 
 //销毁玩家
