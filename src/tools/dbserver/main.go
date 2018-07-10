@@ -21,7 +21,7 @@ func main() {
 	flag.Parse()
 
 	var dbcfg common.DBConfig
-	if err := common.ReadDbConfig(*dbConfigFile, &dbcfg); err != nil {
+	if err := common.ReadDbConfig(dbConfigFile, &dbcfg); err != nil {
 		logger.Fatal("load config failed, error is: %v", err)
 		return
 	}
