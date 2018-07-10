@@ -11,7 +11,7 @@ import (
 var (
 	//laddr = flag.String("l", "127.0.0.1:8800", "The address to bind to.")
 	//dbg_addr     = flag.String("d", "127.0.0.1:8801", "The address to bind to.(for debug)")
-	dbConfigFile = flag.String("c", "", "config file name for the dbserver")
+	dbConfigFile = "dbBase.json" //flag.String("c", "", "config file name for the dbserver")
 )
 
 var dbServer *db.DBServer
