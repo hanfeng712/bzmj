@@ -4,6 +4,8 @@
 1：游戏服务器断线重连大厅服务器机制
 2：同时在线连接数量
 3: 如果使用redis+mysql或者redis+mongodb，数据一致性怎么保证
+uname:root 
+password:root
 sudo apt-get install mysql-server
 sudo apt-get install mysql-client
 sudo apt install libmysqlclient-dev
@@ -26,7 +28,8 @@ flush privileges;
 service mysql restart
 
 现在在Windows下可以使用navicat远程连接Ubuntu下的MySQL服务：
-
+CREATE DATABASE IF NOT EXISTS dbtest1 DEFAULT CHARSET utf8 COLLATE utf8_general_ci; 
+CREATE DATABASE IF NOT EXISTS dbtest2 DEFAULT CHARSET utf8 COLLATE utf8_general_ci; 
 
 *******************************************************************************
 在 Ubuntu 系统安装 Redi 可以使用以下命令:

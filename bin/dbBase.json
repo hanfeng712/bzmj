@@ -31,7 +31,7 @@
         "host" : "127.0.0.1",
         "vnode" : 3,
         "nodename": "main-db1",
-        "pass" : "ppedbs",
+        "pass" : "root",
         "pool" : 16,
         "port" : 3306,
         "uname" : "root"
@@ -42,7 +42,7 @@
         "host" : "127.0.0.1",
         "vnode" : 3,
         "nodename": "main-db2",
-        "pass" : "ppedbs",
+        "pass" : "root",
         "pool" : 16,
         "port" : 3306,
         "uname" : "root"
