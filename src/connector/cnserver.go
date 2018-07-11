@@ -40,8 +40,7 @@ type CNServer struct {
 func NewCNServer(cfg *common.CnsConfig) (server *CNServer) {
 	logger.Info("CNServer:NewCNServer:<ENTER>")
 	//数据库服务
-
-	//	dbclient.Init()
+	dbclient.Init()
 	var lobbycfg common.LobbyServerCfg
 	if err := common.ReadLobbyConfig(&lobbycfg); err != nil {
 		return

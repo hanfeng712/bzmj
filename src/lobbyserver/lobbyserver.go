@@ -11,7 +11,7 @@ import (
 	"rpc/proto"
 	//	"strconv"
 	"common"
-	//"dbclient"
+	"dbclient"
 	"sync"
 	"time"
 )
@@ -36,8 +36,9 @@ var lobbyService *LobbyServices
 //创建大厅对象
 func NewLobbyServer(cfg common.LobbyServerCfg) (server *LobbyServices) {
 	//数据库服务
+
+	dbclient.Init()
 	/*
-		dbclient.Init()
 		var logCfg common.LogServerCfg
 		if err := common.ReadLogConfig(&logCfg); err != nil {
 			logger.Fatal("%v", err)

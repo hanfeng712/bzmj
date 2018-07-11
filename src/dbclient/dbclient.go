@@ -26,16 +26,18 @@ func Init() {
 	}
 
 	//extern
-	if err := common.ReadDbConfig("dbExtern.json", &dbCfg); err != nil {
-		logger.Fatal("%v", err)
-	}
+	/*
+		if err := common.ReadDbConfig("dbExtern.json", &dbCfg); err != nil {
+			logger.Fatal("%v", err)
+		}
 
-	aHosts = make([]string, 0)
-	aHosts = append(aHosts, dbCfg.DBHost)
-	pPollExtern = rpcplusclientpool.CreateClientPool(aHosts)
-	if pPollExtern == nil {
-		logger.Fatal("create failed")
-	}
+		aHosts = make([]string, 0)
+		aHosts = append(aHosts, dbCfg.DBHost)
+		pPollExtern = rpcplusclientpool.CreateClientPool(aHosts)
+		if pPollExtern == nil {
+			logger.Fatal("create failed")
+		}
+	*/
 }
 
 //基础信息库
