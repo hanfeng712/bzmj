@@ -1,9 +1,11 @@
 # bzmj
 棋牌游戏服务器
-开发过程讨论模块
-1：游戏服务器断线重连大厅服务器机制
-2：同时在线连接数量
-3: 如果使用redis+mysql或者redis+mongodb，数据一致性怎么保证
+1:开发过程讨论模块
+1.1：游戏服务器断线重连大厅服务器机制
+1.2：同时在线连接数量
+1.3: 如果使用redis+mysql或者redis+mongodb，数据一致性怎么保证
+
+2:数据库环境
 uname:root
 password:root
 sudo apt-get install mysql-server
@@ -33,6 +35,7 @@ CREATE DATABASE IF NOT EXISTS dbtest2 DEFAULT CHARSET utf8 COLLATE utf8_general_
 CREATE DATABASE IF NOT EXISTS dpsglog DEFAULT CHARSET latin1;
 
 *******************************************************************************
+3:redis环境
 在 Ubuntu 系统安装 Redi 可以使用以下命令:
 $sudo apt-get update
 $sudo apt-get install redis-server
