@@ -2,6 +2,7 @@ package connector
 
 import (
 	"common"
+	"dbclient"
 	"fmt"
 	"logger"
 	"net"
@@ -259,25 +260,43 @@ func (self *CNServer) RegisterReconnect() {
 	//注册大厅重连机制
 	self.lobbyserver.AddDisCallback(func(err error) {
 		logger.Info("disconnected error:", err)
-		self.ReConnectLobby()
+		self.reConnect(1)
 	})
 }
-func (self *CNServer) ReConnectLobby() {
-	logger.Info("CNServer:ReConnectLobby:<ENTER>")
+
+func (self *CNServer) reConnect(reconnectId uint32) {
+	switch reconnectId {
+	case 1:
+		go func() {
+			for {
+				if err := self.reConnectLobby(); err == nil {
+					break
+				}
+				time.Sleep(time.Second * 3)
+			}
+		}()
+		break
+	default:
+		break
+	}
+}
+func (self *CNServer) reConnectLobby() error {
+	logger.Info("CNServer:reConnectLobby:<ENTER>")
 	var lobbycfg common.LobbyServerCfg
 	if err := common.ReadLobbyConfig(&lobbycfg); err != nil {
-		return
+		return err
 	}
 	lobbyConn, err := net.Dial("tcp", lobbycfg.LobbyIpForServer)
 	if err != nil {
 		logger.Fatal("%s", err.Error())
+		return err
 	}
 	self.lobbyserver = rpcplus.NewClient(lobbyConn)
 	req := &proto.CenterConnCns{Addr: self.listener.Addr().String()}
 	rst := &proto.CenterConnCnsResult{}
 	self.lobbyserver.Go("LobbyServices.LobbyConnCns", req, rst, nil)
-	logger.Info("CNServer:ReConnectLobby:<LEAVE>")
-	return
+	logger.Info("CNServer:reConnectLobby:<LEAVE>")
+	return nil
 }
 
 //销毁玩家
