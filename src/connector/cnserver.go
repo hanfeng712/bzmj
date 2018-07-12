@@ -28,6 +28,7 @@ type LobbyService struct {
 
 type CNServer struct {
 	lobbyserver     *rpcplus.Client
+	logRpcConn      *rpcplus.Client
 	players         map[uint64]*player
 	playersbyid     map[uint64]*player
 	l               sync.RWMutex
@@ -50,28 +51,19 @@ func NewCNServer(cfg *common.CnsConfig) (server *CNServer) {
 	if err != nil {
 		logger.Fatal("CNServer:NewCNServer:res:%s", err.Error())
 	}
-	/*
-		var logCfg common.LogServerCfg
-		if err := common.ReadLogConfig(&logCfg); err != nil {
-			logger.Fatal("%v", err)
-		}
-		logConn, err := net.Dial("tcp", logCfg.LogHost)
-		if err != nil {
-			logger.Fatal("connect logserver failed %s", err.Error())
-		}
 
-			var chatcfg common.ChatServerCfg
-			if err = common.ReadChatConfig(&chatcfg); err != nil {
-				return
-			}
-			chatConn, err := net.Dial("tcp", chatcfg.ListenForServer)
-			if err != nil {
-				logger.Fatal("connect chatserver failed %s", err.Error())
-			}
-	*/
+	var logCfg common.LogServerCfg
+	if err := common.ReadLogConfig(&logCfg); err != nil {
+		logger.Fatal("%v", err)
+	}
+	logConn, err := net.Dial("tcp", logCfg.LogHost)
+	if err != nil {
+		logger.Fatal("connect logserver failed %s", err.Error())
+	}
+
 	server = &CNServer{
-		lobbyserver: rpcplus.NewClient(lobbyConn),
-		//logRpcConn:    rpcplus.NewClient(logConn),
+		lobbyserver:  rpcplus.NewClient(lobbyConn),
+		logRpcConn:   rpcplus.NewClient(logConn),
 		players:      make(map[uint64]*player),
 		playersbyid:  make(map[uint64]*player),
 		lobbyService: &LobbyService{},

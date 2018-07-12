@@ -38,18 +38,17 @@ func NewLobbyServer(cfg common.LobbyServerCfg) (server *LobbyServices) {
 	//数据库服务
 
 	dbclient.Init()
-	/*
-		var logCfg common.LogServerCfg
-		if err := common.ReadLogConfig(&logCfg); err != nil {
-			logger.Fatal("%v", err)
-		}
-		logConn, err := net.Dial("tcp", logCfg.LogHost)
-		if err != nil {
-			logger.Fatal("connect logserver failed %s", err.Error())
-		}
-	*/
+
+	var logCfg common.LogServerCfg
+	if err := common.ReadLogConfig(&logCfg); err != nil {
+		logger.Fatal("%v", err)
+	}
+	logConn, err := net.Dial("tcp", logCfg.LogHost)
+	if err != nil {
+		logger.Fatal("connect logserver failed %s", err.Error())
+	}
 	server = &LobbyServices{
-		//	lgs:  rpcplus.NewClient(logConn),
+		lgs:  rpcplus.NewClient(logConn),
 		cnss: make([]*rpcplus.Client, 0, 1),
 		m:    make(map[uint32]serverInfo),
 	}
