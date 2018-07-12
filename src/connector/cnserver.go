@@ -265,20 +265,22 @@ func (self *CNServer) RegisterReconnect() {
 }
 
 func (self *CNServer) reConnect(reconnectId uint32) {
+	var reconnectFun func() error
 	switch reconnectId {
 	case 1:
-		go func() {
-			for {
-				if err := self.reConnectLobby(); err == nil {
-					break
-				}
-				time.Sleep(time.Second * 3)
-			}
-		}()
+		reconnectFun = self.reConnectLobby
 		break
 	default:
 		break
 	}
+	go func() {
+		for {
+			if err := reconnectFun(); err == nil {
+				break
+			}
+			time.Sleep(time.Second * 3)
+		}
+	}()
 }
 func (self *CNServer) reConnectLobby() error {
 	logger.Info("CNServer:reConnectLobby:<ENTER>")
