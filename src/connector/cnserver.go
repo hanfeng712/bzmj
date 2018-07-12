@@ -282,9 +282,10 @@ func (self *CNServer) reConnectLobby() error {
 	}
 	lobbyConn, err := net.Dial("tcp", lobbycfg.LobbyIpForServer)
 	if err != nil {
-		logger.Fatal("%s", err.Error())
+		//logger.Fatal("%s", err.Error())
 		return err
 	}
+	logger.Info("CNServer:reConnectLobby:<after>")
 	self.lobbyserver = rpcplus.NewClient(lobbyConn)
 	req := &proto.CenterConnCns{Addr: self.listener.Addr().String()}
 	rst := &proto.CenterConnCnsResult{}

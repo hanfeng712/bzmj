@@ -81,7 +81,7 @@ func CreateLobbyServicesForCnserver(server *LobbyServices, listener net.Listener
 			logger.Error("gateserver StartServices %s", err.Error())
 			break
 		}
-
+		fmt.Println("lobby==============================")
 		uConnId++
 		go func(uConnId uint32) {
 
