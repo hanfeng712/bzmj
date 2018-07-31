@@ -13,8 +13,7 @@ const (
 )
 
 func main() {
-	lRobot := robot.CreateRobot()
-	lRobot.ConnectGameServer(1, 2)
+	robot.CreateRobot()
 
 	for {
 
