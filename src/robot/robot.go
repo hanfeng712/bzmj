@@ -14,12 +14,13 @@ type SRobot struct {
 	uid             uint64
 	serverForClient *rpc.Server
 	stateMatchine   *fsm.FSM
+	conn            rpc.RpcConn
 }
 
 var robot *SRobot
 
 const (
-	addr = "127.0.0.1:7900"
+	addr = "127.0.0.1:8850"
 )
 
 func CreateRobot() *SRobot {
@@ -29,23 +30,15 @@ func CreateRobot() *SRobot {
 	key1 := "connectserver"
 	matchine1 := fsm.CreateMatchineState(key1, nil, key1, robot, "ConnectGameServer")
 	robot.stateMatchine.AddState(key1, matchine1)
-	robot.stateMatchine.SetDefaultState(matchine1)
 
 	key2 := "pinggame"
 	matchine2 := fsm.CreateMatchineState(key2, nil, key2, robot, "SendPing")
 	robot.stateMatchine.AddState(key1, matchine2)
-
+	robot.stateMatchine.SetDefaultState(matchine2)
 	robot.stateMatchine.Start()
 	return robot
 }
-func (self *SRobot) ConnectGameServer(key string) {
-	logger.Info("ConnectGameServer")
-}
-func (self *SRobot) SendPing(key string) {
-	logger.Info("SendPing")
-}
 
-/*
 func (self *SRobot) ConnectGameServer(key string) {
 	logger.Info("ConnectGameServer")
 
@@ -97,7 +90,7 @@ func (self *SRobot) ConnectGameServer(key string) {
 		}()
 		lRpcServer.ServeConn(rpcConn)
 	}()
-
+	self.conn = rpcConn
 }
 
 func (c *SRobot) onConn(conn rpc.RpcConn) {
@@ -108,14 +101,17 @@ func (self *SRobot) onDisConn(conn rpc.RpcConn) {
 	logger.Info("onDisConn")
 }
 
-func SendLoginMsg(conn rpc.RpcConn) {
+func (self *SRobot) SendLoginMsg(conn rpc.RpcConn) {
 	logger.Info("SendLoginMsg")
 
 	return
 }
 
+func (self *SRobot) SendPing(conn rpc.RpcConn) {
+	logger.Info("SendPing")
+	return
+}
 func SendMsg(conn rpc.RpcConn, value interface{}) {
 	logger.Info("SendMsg")
 	common.WriteClientResult(conn, "CNServer.Login", value)
 }
-*/
