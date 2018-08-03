@@ -10,12 +10,12 @@ type callBackFunc func(arg interface{})
 
 // State父struct
 type FSMState struct {
-	id       string							//状态对应的键值
-	callback callBackFunc					//普通的回调函数
-	funName  string							//对象对调方法的名字
-	object   interface{}					//创建状态机的对象
-	methods  map[string]reflect.Method		//创装状态机对象的所有方法的集合
-	arg      interface{}					//回调方法的参数
+	id       string                    //状态对应的键值
+	callback callBackFunc              //普通的回调函数
+	funName  string                    //对象对调方法的名字
+	object   interface{}               //创建状态机的对象
+	methods  map[string]reflect.Method //创装状态机对象的所有方法的集合
+	arg      interface{}               //回调方法的参数
 }
 
 /*
@@ -26,8 +26,8 @@ type FSMState struct {
 @param4: object: 创建状态机的对象
 @param5: name:   对象的回调方法，兼容接口
 注意：两个兼容的回调函数，区别是：一个是函数，一个是创建状态机的对象的方法
- */
-func CreateMatchineState(id string, fun callBackFunc, arg interface{}, object interface{}, name string) FSMState {
+*/
+func CreateMatchineState(id string, fun callBackFunc, arg interface{}, object interface{}, name string) *FSMState {
 
 	methods := make(map[string]reflect.Method)
 	if object != nil {
@@ -39,7 +39,7 @@ func CreateMatchineState(id string, fun callBackFunc, arg interface{}, object in
 		}
 	}
 
-	return FSMState{
+	return &FSMState{
 		id:       id,
 		callback: fun,
 		arg:      arg,
@@ -94,10 +94,11 @@ func (this *FSMState) addStateCallBack(f callBackFunc) {
 func (this *FSMState) CheckTransition() {
 	//
 }
+
 /*
 设置回调参数值
 */
-func (this *FSMState) setCallBackArg(arg interface{}){
+func (this *FSMState) setCallBackArg(arg interface{}) {
 
 	this.arg = arg
 }
@@ -111,15 +112,15 @@ func CreateFSM() *FSM {
 
 type FSM struct {
 	// 持有状态集合
-	statesMap map[string]FSMState
+	statesMap map[string]*FSMState
 	//
 	action *list.List
 	// 当前状态
-	current_state FSMState
+	current_state *FSMState
 	// 下一个状态
-	next_state FSMState
+	next_state *FSMState
 	// 默认状态
-	default_state FSMState
+	default_state *FSMState
 	runState      int
 }
 
@@ -129,9 +130,10 @@ type FSM struct {
 func (this *FSM) Init() {
 	//
 	this.runState = 0
-	this.statesMap = make(map[string]FSMState)
+	this.statesMap = make(map[string]*FSMState)
 	this.action = list.New()
 }
+
 /*
 状态机方法：启动状态机
 */
@@ -155,7 +157,7 @@ func (this *FSM) Start() {
 设状态机方法：置默认的State
 @param: state:状态
 */
-func (this *FSM) SetDefaultState(state FSMState) {
+func (this *FSM) SetDefaultState(state *FSMState) {
 	this.default_state = state
 }
 
@@ -164,7 +166,7 @@ func (this *FSM) SetDefaultState(state FSMState) {
 @param1 : 状态对应的key
 @param : state:状态
 */
-func (this *FSM) AddState(key string, state FSMState) {
+func (this *FSM) AddState(key string, state *FSMState) {
 	this.statesMap[key] = state
 	this.action.PushBack(key)
 }
@@ -173,20 +175,21 @@ func (this *FSM) AddState(key string, state FSMState) {
 根状态机方法：据key获取状态
 @param: key:状态的Id
 */
-func (this *FSM) GetStateById(key string){
+func (this *FSM) GetStateById(key string) *FSMState {
 	return this.statesMap[key]
 }
+
 /*
 获状态机方法：取当前状态
 */
-func (this *FSM) GetCurrentState() FSMState {
+func (this *FSM) GetCurrentState() *FSMState {
 	return this.current_state
 }
 
 /*
 获状态机方法：取下一下状态
 */
-func (this *FSM) GetNextState() FSMState {
+func (this *FSM) GetNextState() *FSMState {
 	return this.next_state
 }
 
@@ -210,7 +213,7 @@ func (this *FSM) SwitchFsmState() {
 状态机方法：计算下一个状态
 @parma1: crrrent:当前的状态
 */
-func (this *FSM) CalcNextStateKey(current FSMState) string {
+func (this *FSM) CalcNextStateKey(current *FSMState) string {
 	var index string = this.default_state.id
 	for e := this.action.Front(); e != nil; e = e.Next() {
 		if e.Value == current.id {
@@ -228,13 +231,14 @@ func (this *FSM) CalcNextStateKey(current FSMState) string {
 @param1: key:状态对应的Id
 @param2: arg:状态的回调函数执行参数
 */
-func (this *FSM) SetStateCallBackArg(key string, arg interface{}){
+func (this *FSM) SetStateCallBackArg(key string, arg interface{}) {
 	state := this.GetStateById(key)
 	if state == nil {
 		return
 	}
 	state.setCallBackArg(arg)
 }
+
 /*
 暂状态机方法：停FSM
 */
