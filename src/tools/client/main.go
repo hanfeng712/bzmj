@@ -8,12 +8,10 @@ import (
 	//"github.com/golang/protobuf/proto"
 )
 
-const (
-	addr = "127.0.0.1:7900"
-)
+var id uint64 = 1
 
 func main() {
-	robot.CreateRobot()
+	robot.CreateRobot(id)
 
 	for {
 
