@@ -149,7 +149,7 @@ func (this *FSM) Start() {
 	this.next_state = this.statesMap[index]
 
 	this.runState = 1
-	this.SwitchFsmState()
+	this.DoFsmState()
 	fmt.Printf("FSM-Start():leave2")
 }
 
@@ -196,17 +196,19 @@ func (this *FSM) GetNextState() *FSMState {
 /*
 状状态机方法：态切换
 */
-func (this *FSM) SwitchFsmState() {
+func (this *FSM) DoFsmState() {
 	if this.runState != 1 {
 		return
 	}
 	//执行当前状态的动作
 	this.current_state.Do()
+}
 
+func (this *FSM) SwitchFsmState() {
 	this.current_state = this.next_state
 	var index string = this.CalcNextStateKey(this.current_state)
 	this.next_state = this.statesMap[index]
-	this.SwitchFsmState()
+	this.DoFsmState()
 }
 
 /*
