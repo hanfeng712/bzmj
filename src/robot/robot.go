@@ -1,13 +1,13 @@
 package robot
 
 import (
-	//	"common"
-	//	"fmt"
+	"common"
+	"fmt"
 	"fsm"
 	"logger"
-	//	"net"
+	"net"
 	"rpc"
-	//	"runtime/debug"
+	"runtime/debug"
 )
 
 type SRobot struct {
@@ -18,29 +18,33 @@ type SRobot struct {
 }
 
 var robot *SRobot
+var sendMsgCount uint64 = 1
 
 const (
-	addr = "127.0.0.1:8850"
+	addr = "127.0.0.1:7850"
 )
 
-func CreateRobot() *SRobot {
+func CreateRobot(id uint64) *SRobot {
 	robot := &SRobot{}
+	robot.uid = id
 	robot.stateMatchine = fsm.CreateFSM()
+	/*
+		key1 := "connectserver"
+		matchine1 := fsm.CreateMatchineState(key1, nil, key1, robot, "ConnectGameServer")
+		robot.stateMatchine.AddState(key1, matchine1)
 
-	key1 := "connectserver"
-	matchine1 := fsm.CreateMatchineState(key1, nil, key1, robot, "ConnectGameServer")
-	robot.stateMatchine.AddState(key1, matchine1)
-
-	key2 := "pinggame"
-	matchine2 := fsm.CreateMatchineState(key2, nil, key2, robot, "SendPing")
-	robot.stateMatchine.AddState(key1, matchine2)
-	robot.stateMatchine.SetDefaultState(matchine2)
-	robot.stateMatchine.Start()
+		key2 := "pinggame"
+		matchine2 := fsm.CreateMatchineState(key2, nil, key2, robot, "SendPing")
+		robot.stateMatchine.AddState(key1, matchine2)
+		robot.stateMatchine.SetDefaultState(matchine2)
+		robot.stateMatchine.Start()
+	*/
+	robot.connectGameServer("hanfeng")
 	return robot
 }
 
-func (self *SRobot) ConnectGameServer(key string) {
-	logger.Info("ConnectGameServer")
+func (self *SRobot) connectGameServer(key string) {
+	logger.Info("connectGameServer")
 
 	lRpcServer := rpc.NewServer()
 	self.serverForClient = lRpcServer
@@ -90,28 +94,33 @@ func (self *SRobot) ConnectGameServer(key string) {
 		}()
 		lRpcServer.ServeConn(rpcConn)
 	}()
-	self.conn = rpcConn
+
 }
 
-func (c *SRobot) onConn(conn rpc.RpcConn) {
+func (self *SRobot) onConn(conn rpc.RpcConn) {
 	logger.Info("onConn")
+	self.sendPing(conn)
 }
 
 func (self *SRobot) onDisConn(conn rpc.RpcConn) {
 	logger.Info("onDisConn")
 }
 
-func (self *SRobot) SendLoginMsg(conn rpc.RpcConn) {
+func (self *SRobot) sendLoginMsg(conn rpc.RpcConn) {
 	logger.Info("SendLoginMsg")
 
 	return
 }
 
-func (self *SRobot) SendPing(conn rpc.RpcConn) {
+func (self *SRobot) sendPing(conn rpc.RpcConn) { //(conn rpc.RpcConn) {
 	logger.Info("SendPing")
+	pingReq := rpc.Ping{}
+	pingReq.Id = &self.uid
+	pingReq.Count = &sendMsgCount
+	sendMsg(conn, &pingReq)
 	return
 }
-func SendMsg(conn rpc.RpcConn, value interface{}) {
+func sendMsg(conn rpc.RpcConn, value interface{}) {
 	logger.Info("SendMsg")
-	common.WriteClientResult(conn, "CNServer.Login", value)
+	common.WriteClientResult(conn, "LobbyServicesForClient.LobbyHandlePingMsg", value)
 }
