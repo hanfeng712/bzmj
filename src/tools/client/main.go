@@ -2,6 +2,7 @@ package main
 
 import (
 	"robot"
+	"time"
 
 	//"github.com/golang/snappy"
 
@@ -11,11 +12,10 @@ import (
 var id uint64 = 1
 
 func main() {
-	robot.CreateRobot(id)
-
-	for {
-
+	for i := 1; i < 100; i++ {
+		go robot.CreateRobot(uint64(i))
 	}
+	time.Sleep(30000000000 * time.Millisecond)
 }
 
 /*
