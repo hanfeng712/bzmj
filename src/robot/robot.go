@@ -7,7 +7,7 @@ import (
 	"logger"
 	"net"
 	"rpc"
-	"runtime/debug"
+	//"runtime/debug"
 )
 
 type SRobot struct {
@@ -28,23 +28,21 @@ func CreateRobot(id uint64) *SRobot {
 	robot := &SRobot{}
 	robot.uid = id
 	robot.stateMatchine = fsm.CreateFSM()
-	/*
-		key1 := "connectserver"
-		matchine1 := fsm.CreateMatchineState(key1, nil, key1, robot, "ConnectGameServer")
-		robot.stateMatchine.AddState(key1, matchine1)
 
-		key2 := "pinggame"
-		matchine2 := fsm.CreateMatchineState(key2, nil, key2, robot, "SendPing")
-		robot.stateMatchine.AddState(key1, matchine2)
-		robot.stateMatchine.SetDefaultState(matchine2)
-		robot.stateMatchine.Start()
-	*/
-	robot.connectGameServer("hanfeng")
+	key1 := "connectserver"
+	matchine1 := fsm.CreateMatchineState(key1, nil, key1, robot, "ConnectGameServer")
+	robot.stateMatchine.AddState(key1, matchine1)
+
+	key2 := "pinggame"
+	matchine2 := fsm.CreateMatchineState(key2, nil, key2, robot, "SendPing")
+	robot.stateMatchine.AddState(key2, matchine2)
+	robot.stateMatchine.SetDefaultState(matchine2)
+	robot.stateMatchine.Start()
 	return robot
 }
 
-func (self *SRobot) connectGameServer(key string) {
-	logger.Info("connectGameServer")
+func (self *SRobot) ConnectGameServer(key string) {
+	logger.Info("ConnectGameServer")
 
 	lRpcServer := rpc.NewServer()
 	self.serverForClient = lRpcServer
@@ -81,26 +79,28 @@ func (self *SRobot) connectGameServer(key string) {
 	}
 	rpcConn := rpc.NewProtoBufConn(lRpcServer, conn, 128, 45)
 	lRpcServer.ServeConn(rpcConn)
+	/*
+		go func() {
+			rpcConn := rpc.NewProtoBufConn(lRpcServer, conn, 128, 45)
+			defer func() {
+				if r := recover(); r != nil {
+					logger.Error("player rpc runtime error begin:", r)
+					debug.PrintStack()
+					self.onDisConn(rpcConn)
+					rpcConn.Close()
 
-	go func() {
-		rpcConn := rpc.NewProtoBufConn(lRpcServer, conn, 128, 45)
-		defer func() {
-			if r := recover(); r != nil {
-				logger.Error("player rpc runtime error begin:", r)
-				debug.PrintStack()
-				self.onDisConn(rpcConn)
-				rpcConn.Close()
-
-				logger.Error("player rpc runtime error end ")
-			}
+					logger.Error("player rpc runtime error end ")
+				}
+			}()
+			lRpcServer.ServeConn(rpcConn)
 		}()
-		lRpcServer.ServeConn(rpcConn)
-	}()
+	*/
 }
 
 func (self *SRobot) onConn(conn rpc.RpcConn) {
-	logger.Info("onConn")
-	self.sendPing(conn)
+	logger.Info("=====onConn======")
+	self.conn = conn
+	self.stateMatchine.SwitchFsmState()
 }
 
 func (self *SRobot) onDisConn(conn rpc.RpcConn) {
@@ -113,12 +113,13 @@ func (self *SRobot) sendLoginMsg(conn rpc.RpcConn) {
 	return
 }
 
-func (self *SRobot) sendPing(conn rpc.RpcConn) { //(conn rpc.RpcConn) {
+func (self *SRobot) SendPing(key string) { //conn rpc.RpcConn) {
 	logger.Info("SendPing")
+
 	pingReq := rpc.Ping{}
 	pingReq.Id = &self.uid
 	pingReq.Count = &sendMsgCount
-	sendMsg(conn, &pingReq)
+	sendMsg(self.conn, &pingReq)
 	return
 }
 func sendMsg(conn rpc.RpcConn, value interface{}) {
