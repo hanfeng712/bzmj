@@ -104,17 +104,17 @@ func (self *SRobot) onConn(conn rpc.RpcConn) {
 }
 
 func (self *SRobot) onDisConn(conn rpc.RpcConn) {
-	logger.Info("onDisConn")
+	logger.Debug("onDisConn")
 }
 
 func (self *SRobot) sendLoginMsg(conn rpc.RpcConn) {
-	logger.Info("SendLoginMsg")
+	logger.Debug("SendLoginMsg")
 
 	return
 }
 
 func (self *SRobot) SendPing(key string) { //conn rpc.RpcConn) {
-	logger.Info("SendPing")
+	logger.Debug("SendPing")
 
 	pingReq := rpc.Ping{}
 	pingReq.Id = &self.uid
@@ -123,6 +123,5 @@ func (self *SRobot) SendPing(key string) { //conn rpc.RpcConn) {
 	return
 }
 func sendMsg(conn rpc.RpcConn, value interface{}) {
-	logger.Info("SendMsg")
 	common.WriteClientResult(conn, "LobbyServicesForClient.LobbyHandlePingMsg", value)
 }
