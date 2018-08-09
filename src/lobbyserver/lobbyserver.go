@@ -81,7 +81,7 @@ func CreateLobbyServicesForCnserver(server *LobbyServices, listener net.Listener
 			logger.Error("gateserver StartServices %s", err.Error())
 			break
 		}
-		fmt.Println("lobby==============================")
+		fmt.Println("other server connect lobby")
 		uConnId++
 		go func(uConnId uint32) {
 
@@ -174,6 +174,7 @@ func CreateLobbyServicesForClient(listener net.Listener) *LobbyServicesForClient
 			break
 		}
 		go func() {
+			fmt.Printf("client connect lobby\n")
 			rpcConn := rpc.NewProtoBufConn(rpcServer, conn, 4, 0)
 			rpcServer.ServeConn(rpcConn)
 		}()
@@ -191,6 +192,11 @@ func WriteResult(conn rpc.RpcConn, value interface{}) bool {
 	return true
 }
 
+func SendMsgToClient(conn rpc.RpcConn, value interface{}, fun string) bool {
+	logger.Info("SendMsgToClient")
+	common.WriteClientResult(conn, fun, value)
+	return true
+}
 func (c *LobbyServicesForClient) onConn(conn rpc.RpcConn) {
 	rep := rpc.LoginCnsInfo{}
 
@@ -207,8 +213,23 @@ func (c *LobbyServicesForClient) onConn(conn rpc.RpcConn) {
 
 	rep.GsInfo = &gasinfo
 
-	WriteResult(conn, &rep)
+	/*
+		WriteResult(conn, &rep)
 
-	time.Sleep(10 * time.Second)
-	conn.Close()
+		time.Sleep(10 * time.Second)
+		conn.Close()
+	*/
+	SendMsgToClient(conn, &rep, "SRobot.LoginCnsInfo")
+}
+
+func (c *LobbyServicesForClient) LobbyHandlePingMsg(conn rpc.RpcConn, msg rpc.Ping) error {
+	fmt.Printf("LobbyHandlePingMsg:recv ping\n")
+
+	pongReq := rpc.Pong{}
+	pongReq.Id = msg.Id
+	pongReq.Count = msg.Count
+	//WriteResult(conn, &pongReq)
+
+	SendMsgToClient(conn, &pongReq, "SRobot.HandlePongRsp")
+	return nil
 }
