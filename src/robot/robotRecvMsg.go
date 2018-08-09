@@ -6,7 +6,13 @@ import (
 )
 
 func (self *SRobot) HandlePongRsp(conn rpc.RpcConn, msg rpc.Pong) error {
-	logger.Info("recv HandlePongRsp : uid:%d, count:%d", self.uid, msg.Count)
-	self.stateMatchine.SwitchFsmState()
+	logger.Info("recv HandlePongRsp :")
+	//uid:%d, count:%d", self.uid, msg.Count)
+	//self.stateMatchine.SwitchFsmState()
+	return nil
+}
+
+func (self *SRobot) LoginCnsInfo(conn rpc.RpcConn, msg rpc.LoginCnsInfo) error {
+	logger.Info("recv LoginCnsInfo")
 	return nil
 }
