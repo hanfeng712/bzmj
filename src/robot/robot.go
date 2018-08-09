@@ -79,6 +79,8 @@ func (self *SRobot) connectGameServer(key string) {
 		fmt.Println("连接服务端失败:", err.Error())
 		return
 	}
+	rpcConn := rpc.NewProtoBufConn(lRpcServer, conn, 128, 45)
+	lRpcServer.ServeConn(rpcConn)
 
 	go func() {
 		rpcConn := rpc.NewProtoBufConn(lRpcServer, conn, 128, 45)
@@ -94,7 +96,6 @@ func (self *SRobot) connectGameServer(key string) {
 		}()
 		lRpcServer.ServeConn(rpcConn)
 	}()
-
 }
 
 func (self *SRobot) onConn(conn rpc.RpcConn) {
