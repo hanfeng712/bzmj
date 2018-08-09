@@ -18,7 +18,7 @@ message Msg{
 message SyncError{
 	optional string text = 1;
 }
- 
+
 message RpcErrorResponse{
 	required string method = 1;
 	required string text = 2;
@@ -27,4 +27,14 @@ message RpcErrorResponse{
 message LoginCnsInfo{
 	required string cnsIp = 1;
 	required string gsInfo = 2;
+}
+
+message Ping{
+	required uint64 id = 1;
+	required uint64 count = 2;
+}
+
+message Pong{
+	required uint64 id = 1;
+	required uint64 count = 2;
 }
