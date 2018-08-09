@@ -2,7 +2,7 @@ package fsm
 
 import (
 	"container/list"
-	"fmt"
+	"logger"
 	"reflect"
 )
 
@@ -53,15 +53,13 @@ func CreateMatchineState(id string, fun callBackFunc, arg interface{}, object in
 状态方法：进入状态
 */
 func (this *FSMState) Enter() {
-	//
-	fmt.Println("state enter")
+
 }
 
 /*
 状态方法：状态处理函数
 */
 func (this *FSMState) Do() {
-	fmt.Printf("FSMState do - key : %s\n", this.id)
 	if this.object != nil {
 
 		params := make([]reflect.Value, 2)
@@ -77,8 +75,6 @@ func (this *FSMState) Do() {
 状态方法：退出状态
 */
 func (this *FSMState) Exit() {
-	//
-	fmt.Println("state exit")
 }
 
 /*
@@ -138,9 +134,8 @@ func (this *FSM) Init() {
 状态机方法：启动状态机
 */
 func (this *FSM) Start() {
-	fmt.Printf("FSM-Start():enter")
 	if this.action.Len() == 0 {
-		fmt.Printf("FSM-Start():leave1")
+		logger.Info("FSM-Start():leave1")
 		return
 	}
 	firstKey := this.action.Front()
@@ -150,7 +145,6 @@ func (this *FSM) Start() {
 
 	this.runState = 1
 	this.DoFsmState()
-	fmt.Printf("FSM-Start():leave2")
 }
 
 /*
