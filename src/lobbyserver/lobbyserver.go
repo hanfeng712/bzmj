@@ -81,7 +81,7 @@ func CreateLobbyServicesForCnserver(server *LobbyServices, listener net.Listener
 			logger.Error("gateserver StartServices %s", err.Error())
 			break
 		}
-		fmt.Println("other server connect lobby")
+		logger.Debug("other server connect lobby")
 		uConnId++
 		go func(uConnId uint32) {
 
@@ -123,7 +123,7 @@ func (self *LobbyServices) LobbyConnCns(req *proto.CenterConnCns, reply *proto.C
 
 //更新每个服务器的在线人数
 func (self *LobbyServices) UpdateCnsPlayerCount(uConnId uint32, info *proto.SendCnsInfo, result *proto.SendCnsInfoResult) error {
-	logger.Info("LobbyServices:UpdateCnsPlayerCount:<ENTER>")
+	logger.Debug("LobbyServices:UpdateCnsPlayerCount:<ENTER>")
 	self.l.Lock()
 	self.m[uConnId] = serverInfo{info.PlayerCount, info.ServerIp}
 
@@ -137,7 +137,7 @@ func (self *LobbyServices) UpdateCnsPlayerCount(uConnId uint32, info *proto.Send
 	}
 
 	self.l.Unlock()
-	logger.Info("LobbyServices:UpdateCnsPlayerCount:<LEAVE>")
+	logger.Debug("LobbyServices:UpdateCnsPlayerCount:<LEAVE>")
 	//fmt.Printf("recv cns msg : server %d , player count %d, player ip = %s \n", info.ServerId, info.PlayerCount, info.ServerIp)
 	return nil
 }
@@ -174,7 +174,7 @@ func CreateLobbyServicesForClient(listener net.Listener) *LobbyServicesForClient
 			break
 		}
 		go func() {
-			fmt.Printf("client connect lobby\n")
+			logger.Debug("client connect lobby")
 			rpcConn := rpc.NewProtoBufConn(rpcServer, conn, 4, 0)
 			rpcServer.ServeConn(rpcConn)
 		}()
@@ -223,8 +223,7 @@ func (c *LobbyServicesForClient) onConn(conn rpc.RpcConn) {
 }
 
 func (c *LobbyServicesForClient) LobbyHandlePingMsg(conn rpc.RpcConn, msg rpc.Ping) error {
-	fmt.Printf("LobbyHandlePingMsg:recv ping\n")
-
+	logger.Debug("LobbyHandlePingMsg:recv ping\n")
 	pongReq := rpc.Pong{}
 	pongReq.Id = msg.Id
 	pongReq.Count = msg.Count
