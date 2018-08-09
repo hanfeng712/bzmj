@@ -2,6 +2,7 @@ package robot
 
 import (
 	"common"
+	"container/list"
 	"fmt"
 	"fsm"
 	"logger"
@@ -14,21 +15,24 @@ type SRobot struct {
 	uid             uint64
 	serverForClient *rpc.Server
 	stateMatchine   *fsm.FSM
+	sendMsgCount    uint64
 	conn            rpc.RpcConn
 }
 
-var robot *SRobot
-var sendMsgCount uint64 = 1
+//var robotList *SRobot[]
+var robotList *list.List = list.New()
 
 const (
 	addr = "127.0.0.1:7850"
 )
 
 func CreateRobot(id uint64) *SRobot {
-	robot := &SRobot{}
-	robot.uid = id
-	robot.stateMatchine = fsm.CreateFSM()
 
+	robot := &SRobot{}
+	robotList.PushBack(robot)
+	robot.uid = id
+	robot.sendMsgCount = 1
+	robot.stateMatchine = fsm.CreateFSM()
 	key1 := "connectserver"
 	matchine1 := fsm.CreateMatchineState(key1, nil, key1, robot, "ConnectGameServer")
 	robot.stateMatchine.AddState(key1, matchine1)
@@ -38,6 +42,8 @@ func CreateRobot(id uint64) *SRobot {
 	robot.stateMatchine.AddState(key2, matchine2)
 	robot.stateMatchine.SetDefaultState(matchine2)
 	robot.stateMatchine.Start()
+	logger.Debug("id:%d", id)
+
 	return robot
 }
 
@@ -114,12 +120,13 @@ func (self *SRobot) sendLoginMsg(conn rpc.RpcConn) {
 }
 
 func (self *SRobot) SendPing(key string) { //conn rpc.RpcConn) {
-	logger.Debug("SendPing")
-
+	logger.Debug("SendPing:uid:%d,sendMsgCount:%d", self.uid, self.sendMsgCount)
+	count := self.sendMsgCount + uint64(1)
 	pingReq := rpc.Ping{}
 	pingReq.Id = &self.uid
-	pingReq.Count = &sendMsgCount
+	pingReq.Count = &(count)
 	sendMsg(self.conn, &pingReq)
+	self.sendMsgCount = count
 	return
 }
 func sendMsg(conn rpc.RpcConn, value interface{}) {
