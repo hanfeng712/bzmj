@@ -1,4 +1,3 @@
-
 //提供一个分等级的日志系统，建议直接使用全局的对象，而不是另外New一个
 package logger
 
@@ -7,12 +6,12 @@ import (
 	"io"
 	"log"
 	"os"
-	"strings"
 	"runtime/debug"
+	"strings"
 )
 
 func init() {
-	globalLogger = New(os.Stdout, "", log.LstdFlags, INFO)
+	globalLogger = New(os.Stdout, "", log.LstdFlags, DEBUG)
 }
 
 var globalLogger *Logger
@@ -114,6 +113,7 @@ func Redact(s string) string {
 
 func (logger *Logger) Output(level int, format string, args ...interface{}) {
 	if logger.level > level {
+		fmt.Printf("level1:%d,level2:%d\n", logger.level, level)
 		return
 	}
 	redactedArgs := make([]interface{}, len(args))
