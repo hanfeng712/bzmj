@@ -5,9 +5,10 @@ import (
 	//"csvcfg"
 	"jscfg"
 	"logger"
-	//"os"
+	"os"
 	"path"
-	//	"strings"
+
+	"strings"
 )
 
 //gateserver配置
@@ -46,10 +47,26 @@ type CnsConfig struct {
 	GcTime           uint8
 }
 
+func substr(s string, pos, length int) string {
+	runes := []rune(s)
+	l := pos + length
+	if l > len(runes) {
+		l = len(runes)
+	}
+	return string(runes[pos:l])
+}
+
+func GetRootDir() string {
+	cfgpath, _ := os.Getwd()
+	r1 := substr(cfgpath, 0, strings.LastIndex(cfgpath, "/"))
+	r2 := substr(r1, 0, strings.LastIndex(r1, "/"))
+	r3 := substr(r2, 0, strings.LastIndex(r2, "/"))
+	return r3
+}
+
 //log
 func ReadLogConfig(cfg *LogServerCfg) error {
-	//cfgpath := os.Getwd()
-	cfgpath := "/home/hanfeng/golang/src/bzmj/bin"
+	cfgpath := GetRootDir() + "/bin"
 
 	if err := jscfg.ReadJson(path.Join(cfgpath, "lgscfg.json"), cfg); err != nil {
 		logger.Fatal("read chat config failed, %v", err)
@@ -61,8 +78,7 @@ func ReadLogConfig(cfg *LogServerCfg) error {
 
 //cns服务器配置
 func ReadCnsServerConfig(file string, cfg *CnsConfig) error {
-	//cfgpath := os.Getwd()
-	cfgpath := "/home/hanfeng/golang/src/bzmj/bin"
+	cfgpath := GetRootDir() + "/bin"
 
 	if err := jscfg.ReadJson(path.Join(cfgpath, file), cfg); err != nil {
 		logger.Fatal("read cnserver config failed, %v", err)
@@ -74,8 +90,7 @@ func ReadCnsServerConfig(file string, cfg *CnsConfig) error {
 
 //gate
 func ReadLobbyConfig(cfg *LobbyServerCfg) error {
-	//cfgpath, _ := os.Getwd()
-	cfgpath := "/home/hanfeng/golang/src/bzmj/bin"
+	cfgpath := GetRootDir() + "/bin"
 
 	if err := jscfg.ReadJson(path.Join(cfgpath, "lobbycfg.json"), cfg); err != nil {
 		logger.Fatal("read gate config failed, %v", err)
