@@ -1,40 +1,18 @@
-syntax = "proto2";
 package rpc;
-
-message Rpc{
-	repeated Request request = 1;
-}
-
+syntax = "proto3";
 message Request{
 	required string method = 1;
 	optional bytes serialized_request = 2;
 }
-
-message Msg{
-	optional string code = 1;
-	optional string text = 2;
+/***************详细详细内容***********************************************/
+message CS_BetMsg{
 }
-
-message SyncError{
-	optional string text = 1;
+message SC_BetMsg{
 }
-
-message RpcErrorResponse{
-	required string method = 1;
-	required string text = 2;
+message CS_LoginMsg {
+    required string UserName = 1; 
+	required string UserPass = 2;
 }
-
-message LoginCnsInfo{
-	required string cnsIp = 1;
-	required string gsInfo = 2;
-}
-
-message Ping{
-	required uint64 id = 1;
-	required uint64 count = 2;
-}
-
-message Pong{
-	required uint64 id = 1;
-	required uint64 count = 2;
+message SC_LoginMsg {
+    required uint64 Uid = 1;
 }
