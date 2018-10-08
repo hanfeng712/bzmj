@@ -120,13 +120,15 @@ func (self *SRobot) sendLoginMsg(conn rpc.RpcConn) {
 }
 
 func (self *SRobot) SendPing(key string) { //conn rpc.RpcConn) {
-	logger.Debug("SendPing:uid:%d,sendMsgCount:%d", self.uid, self.sendMsgCount)
-	count := self.sendMsgCount + uint64(1)
-	pingReq := rpc.Ping{}
-	pingReq.Id = &self.uid
-	pingReq.Count = &(count)
-	sendMsg(self.conn, &pingReq)
-	self.sendMsgCount = count
+	/*
+		logger.Debug("SendPing:uid:%d,sendMsgCount:%d", self.uid, self.sendMsgCount)
+		count := self.sendMsgCount + uint64(1)
+		pingReq := rpc.Ping{}
+		pingReq.Id = &self.uid
+		pingReq.Count = &(count)
+		sendMsg(self.conn, &pingReq)
+		self.sendMsgCount = count
+	*/
 	return
 }
 func sendMsg(conn rpc.RpcConn, value interface{}) {
