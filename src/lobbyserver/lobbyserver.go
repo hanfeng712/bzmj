@@ -12,8 +12,11 @@ import (
 	//	"strconv"
 	"common"
 	"dbclient"
+	"net/http"
 	"sync"
 	"time"
+
+	"golang.org/x/net/websocket"
 )
 
 type serverInfo struct {
@@ -154,7 +157,67 @@ type LobbyServicesForClient struct {
 
 //创建客户端连接服务器
 var lobbyServicesForClient *LobbyServicesForClient
+var rpcServer *rpc.Server
 
+func CreateLobbyServicesForClient(addr string, connType string) *LobbyServicesForClient {
+	lobbyServicesForClient = &LobbyServicesForClient{}
+	rpcServer = rpc.NewServer()
+	rpcServer.Register(lobbyServicesForClient)
+
+	rpcServer.RegCallBackOnConn(
+		func(conn rpc.RpcConn) {
+			lobbyServicesForClient.onConn(conn)
+		},
+	)
+
+	if connType == "webConn" {
+		http.Handle("/echo", websocket.Handler(webConnHandler))
+		err := http.ListenAndServe(addr, nil)
+		if err != nil {
+			println("Listening to: ", addr, " failed !!")
+			return nil
+		}
+	} else if connType == "tcpConn" {
+		listenerForClient, err := net.Listen("tcp", addr)
+		defer listenerForClient.Close()
+		if err != nil {
+			println("Listening to: ", addr, " failed !!")
+			return nil
+		}
+		tcpConnHandler(listenerForClient)
+	}
+
+	return lobbyServicesForClient
+}
+
+//webSocket
+func webConnHandler(conn *websocket.Conn) {
+	for {
+		go func() {
+			logger.Debug("client connect lobby")
+			rpcConn := rpc.NewProtoBufConn(rpcServer, conn, 4, 0)
+			rpcServer.ServeConn(rpcConn)
+		}()
+	}
+}
+
+//tcpScoket
+func tcpConnHandler(listener net.Listener) {
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			logger.Error("gateserver StartServices %s", err.Error())
+			break
+		}
+		go func() {
+			logger.Debug("client connect lobby")
+			rpcConn := rpc.NewProtoBufConn(rpcServer, conn, 4, 0)
+			rpcServer.ServeConn(rpcConn)
+		}()
+	}
+}
+
+/*
 func CreateLobbyServicesForClient(listener net.Listener) *LobbyServicesForClient {
 
 	lobbyServicesForClient = &LobbyServicesForClient{}
@@ -182,7 +245,7 @@ func CreateLobbyServicesForClient(listener net.Listener) *LobbyServicesForClient
 
 	return lobbyServicesForClient
 }
-
+*/
 func WriteResult(conn rpc.RpcConn, value interface{}) bool {
 	err := conn.WriteObj(value)
 	if err != nil {

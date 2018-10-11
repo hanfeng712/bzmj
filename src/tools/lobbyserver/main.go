@@ -43,13 +43,6 @@ func main() {
 
 	lobbyServer := lobbyserver.NewLobbyServer(ipcfg)
 
-	listenerForClient, err := net.Listen("tcp", ipcfg.LobbyIpForClient)
-	defer listenerForClient.Close()
-	if err != nil {
-		println("Listening to: ", ipcfg.LobbyIpForClient, " failed !!")
-		return
-	}
-
 	listenerForServer, err := net.Listen("tcp", ipcfg.LobbyIpForServer)
 	defer listenerForServer.Close()
 	if err != nil {
@@ -58,7 +51,16 @@ func main() {
 	}
 
 	go lobbyserver.CreateLobbyServicesForCnserver(lobbyServer, listenerForServer)
-	go lobbyserver.CreateLobbyServicesForClient(listenerForClient)
+	go lobbyserver.CreateLobbyServicesForClient(ipcfg.LobbyIpForClient, "tcpConn")
+	/*
+		listenerForClient, err := net.Listen("tcp", ipcfg.LobbyIpForClient)
+		defer listenerForClient.Close()
+		if err != nil {
+			println("Listening to: ", ipcfg.LobbyIpForClient, " failed !!")
+			return
+		}
+		go lobbyserver.CreateLobbyServicesForClient(listenerForClient)
+	*/
 
 	handler := func(s os.Signal, arg interface{}) {
 		fmt.Printf("handle signal: %v\n", s)
