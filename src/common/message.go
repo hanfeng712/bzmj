@@ -41,17 +41,20 @@ func SyncError(conn rpc.RpcConn, format string, args ...interface{}) {
 }
 
 func SendMsg(conn rpc.RpcConn, code string) {
-	msg := rpc.Msg{}
-	msg.Code = &code
-	//msg.SetCode(code)
+	/*
+		msg := rpc.Msg{}
+		msg.Code = &code
 
-	WriteResult(conn, &msg)
+		WriteResult(conn, &msg)
+	*/
 }
 
 func SendText(conn rpc.RpcConn, text string) {
-	msg := rpc.Msg{}
-	msg.Text = &text
-	//msg.SetText(text)
+	/*
+		msg := rpc.Msg{}
+		msg.Text = &text
+		//msg.SetText(text)
 
-	WriteResult(conn, &msg)
+		WriteResult(conn, &msg)
+	*/
 }
