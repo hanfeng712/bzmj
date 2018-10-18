@@ -32,17 +32,19 @@ type ProtoBufConn struct {
 	lockForClose sync.Mutex
 	is_closed    bool
 	sync.Mutex
-	connMgr *Server
+	connMgr       *Server
+	isCompression bool
 }
 
-func NewProtoBufConn(server *Server, c net.Conn, size int32, k uint32) (conn RpcConn) {
+func NewProtoBufConn(server *Server, c net.Conn, size int32, k uint32, isCompression bool) (conn RpcConn) {
 	pbc := &ProtoBufConn{
-		c:         c,
-		send:      make(chan *Request, size),
-		exit:      make(chan bool, 1),
-		last_time: time.Now().Unix(),
-		time_out:  k,
-		connMgr:   server,
+		c:             c,
+		send:          make(chan *Request, size),
+		exit:          make(chan bool, 1),
+		last_time:     time.Now().Unix(),
+		time_out:      k,
+		connMgr:       server,
+		isCompression: isCompression,
 	}
 
 	if k > 0 {
@@ -76,16 +78,17 @@ func (conn *ProtoBufConn) mux() {
 				logger.Error("ProtoBufConn Marshal Error %s", err.Error())
 				continue
 			}
-
-			dst := snappy.Encode(nil, buf)
-
+			dst := buf
+			if conn.isCompression == true {
+				dst = snappy.Encode(nil, buf)
+			}
 			if err != nil {
 				logger.Error("ProtoBufConn snappy.Encode Error %s", err.Error())
 				continue
 			}
 
 			conn.c.SetWriteDeadline(time.Now().Add(ConnWriteTimeOut))
-			err = binary.Write(conn.c, binary.LittleEndian, int32(len(dst)))
+			err = binary.Write(conn.c, binary.BigEndian, int32(len(dst)))
 			if err != nil {
 				//logger.Error("ProtoBufConn Write Error %s", err.Error())
 				continue
@@ -112,11 +115,11 @@ func (conn *ProtoBufConn) ReadRequest(req *Request) error {
 
 	conn.c.SetReadDeadline(time.Now().Add(ConnReadTimeOut))
 
-	err := binary.Read(conn.c, binary.LittleEndian, &size)
+	err := binary.Read(conn.c, binary.BigEndian, &size)
 	if err != nil {
 		return err
 	}
-
+	fmt.Printf("Recv Len:%d\n", size)
 	buf := make([]byte, size)
 
 	conn.c.SetReadDeadline(time.Now().Add(ConnReadTimeOut))
@@ -125,13 +128,21 @@ func (conn *ProtoBufConn) ReadRequest(req *Request) error {
 	if err != nil {
 		return err
 	}
+	/*
+		dst, err := snappy.Decode(nil, buf)
 
-	dst, err := snappy.Decode(nil, buf)
+		if err != nil {
+			return err
+		}
+	*/
+	dst := buf
+	if conn.isCompression == true {
+		dst, err = snappy.Decode(nil, buf)
 
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
-
 	conn.last_time = time.Now().Unix()
 
 	return proto.Unmarshal(dst, req)
