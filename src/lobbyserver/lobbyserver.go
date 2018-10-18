@@ -1,7 +1,7 @@
 package lobbyserver
 
 import (
-	"fmt"
+	//"fmt"
 	"logger"
 	//	"math/rand"
 	"net"
@@ -14,7 +14,7 @@ import (
 	"dbclient"
 	"net/http"
 	"sync"
-	"time"
+	//"time"
 
 	"golang.org/x/net/websocket"
 )
@@ -160,6 +160,7 @@ var lobbyServicesForClient *LobbyServicesForClient
 var rpcServer *rpc.Server
 
 func CreateLobbyServicesForClient(addr string, connType string) *LobbyServicesForClient {
+	logger.Debug("client:", addr, "connType:", connType)
 	lobbyServicesForClient = &LobbyServicesForClient{}
 	rpcServer = rpc.NewServer()
 	rpcServer.Register(lobbyServicesForClient)
@@ -171,8 +172,8 @@ func CreateLobbyServicesForClient(addr string, connType string) *LobbyServicesFo
 	)
 
 	if connType == "webConn" {
-		http.Handle("/echo", websocket.Handler(webConnHandler))
-		err := http.ListenAndServe(addr, nil)
+		http.Handle("/", websocket.Handler(webConnHandler))
+		err := http.ListenAndServe(":7850", nil)
 		if err != nil {
 			println("Listening to: ", addr, " failed !!")
 			return nil
@@ -191,6 +192,7 @@ func CreateLobbyServicesForClient(addr string, connType string) *LobbyServicesFo
 }
 
 //webSocket
+/*
 func webConnHandler(conn *websocket.Conn) {
 	for {
 		go func() {
@@ -199,6 +201,14 @@ func webConnHandler(conn *websocket.Conn) {
 			rpcServer.ServeConn(rpcConn)
 		}()
 	}
+}
+*/
+
+func webConnHandler(conn *websocket.Conn) {
+	defer conn.Close()
+	logger.Debug("client connect lobby")
+	rpcConn := rpc.NewProtoBufConn(rpcServer, conn, 4, 0)
+	rpcServer.ServeConn(rpcConn)
 }
 
 //tcpScoket
@@ -261,37 +271,34 @@ func SendMsgToClient(conn rpc.RpcConn, value interface{}, fun string) bool {
 	return true
 }
 func (c *LobbyServicesForClient) onConn(conn rpc.RpcConn) {
-	rep := rpc.LoginCnsInfo{}
-
-	cnsIp := pLobbyServices.getStableCns()
-	rep.CnsIp = &cnsIp
-	gasinfo := fmt.Sprintf("%s;%d", conn.GetRemoteIp(), time.Now().Unix())
-	logger.Info("Client(%s) -> CnServer(%s)", conn.GetRemoteIp(), cnsIp)
-	// encode
-	encodeInfo := common.Base64Encode([]byte(gasinfo))
-
-	gasinfo = fmt.Sprintf("%s;%s", gasinfo, encodeInfo)
-
-	//fmt.Printf("%s \n", gasinfo)
-
-	rep.GsInfo = &gasinfo
-
 	/*
-		WriteResult(conn, &rep)
+		rep := rpc.LoginCnsInfo{}
 
-		time.Sleep(10 * time.Second)
-		conn.Close()
+		cnsIp := pLobbyServices.getStableCns()
+		rep.CnsIp = &cnsIp
+		gasinfo := fmt.Sprintf("%s;%d", conn.GetRemoteIp(), time.Now().Unix())
+		logger.Info("Client(%s) -> lobb(%s)", conn.GetRemoteIp(), cnsIp)
+		// encode
+		encodeInfo := common.Base64Encode([]byte(gasinfo))
+
+		gasinfo = fmt.Sprintf("%s;%s", gasinfo, encodeInfo)
+
+		//fmt.Printf("%s \n", gasinfo)
+
+		rep.GsInfo = &gasinfo
+
+		SendMsgToClient(conn, &rep, "SRobot.LoginCnsInfo")
 	*/
-	SendMsgToClient(conn, &rep, "SRobot.LoginCnsInfo")
 }
 
-func (c *LobbyServicesForClient) LobbyHandlePingMsg(conn rpc.RpcConn, msg rpc.Ping) error {
+func (c *LobbyServicesForClient) LobbyHandlePingMsg(conn rpc.RpcConn, msg rpc.CS_BetMsg) error {
 	logger.Debug("LobbyHandlePingMsg:recv ping\n")
-	pongReq := rpc.Pong{}
-	pongReq.Id = msg.Id
-	pongReq.Count = msg.Count
-	//WriteResult(conn, &pongReq)
+	/*
+		pongReq := rpc.Pong{}
+		pongReq.Id = msg.Id
+		pongReq.Count = msg.Count
 
-	SendMsgToClient(conn, &pongReq, "SRobot.HandlePongRsp")
+		SendMsgToClient(conn, &pongReq, "SRobot.HandlePongRsp")
+	*/
 	return nil
 }
