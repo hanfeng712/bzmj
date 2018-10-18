@@ -207,7 +207,7 @@ func webConnHandler(conn *websocket.Conn) {
 func webConnHandler(conn *websocket.Conn) {
 	defer conn.Close()
 	logger.Debug("client connect lobby")
-	rpcConn := rpc.NewProtoBufConn(rpcServer, conn, 4, 0)
+	rpcConn := rpc.NewProtoBufConn(rpcServer, conn, 4, 0, false)
 	rpcServer.ServeConn(rpcConn)
 }
 
@@ -221,41 +221,12 @@ func tcpConnHandler(listener net.Listener) {
 		}
 		go func() {
 			logger.Debug("client connect lobby")
-			rpcConn := rpc.NewProtoBufConn(rpcServer, conn, 4, 0)
+			rpcConn := rpc.NewProtoBufConn(rpcServer, conn, 4, 0, false)
 			rpcServer.ServeConn(rpcConn)
 		}()
 	}
 }
 
-/*
-func CreateLobbyServicesForClient(listener net.Listener) *LobbyServicesForClient {
-
-	lobbyServicesForClient = &LobbyServicesForClient{}
-	rpcServer := rpc.NewServer()
-	rpcServer.Register(lobbyServicesForClient)
-
-	rpcServer.RegCallBackOnConn(
-		func(conn rpc.RpcConn) {
-			lobbyServicesForClient.onConn(conn)
-		},
-	)
-
-	for {
-		conn, err := listener.Accept()
-		if err != nil {
-			logger.Error("gateserver StartServices %s", err.Error())
-			break
-		}
-		go func() {
-			logger.Debug("client connect lobby")
-			rpcConn := rpc.NewProtoBufConn(rpcServer, conn, 4, 0)
-			rpcServer.ServeConn(rpcConn)
-		}()
-	}
-
-	return lobbyServicesForClient
-}
-*/
 func WriteResult(conn rpc.RpcConn, value interface{}) bool {
 	err := conn.WriteObj(value)
 	if err != nil {
@@ -271,34 +242,11 @@ func SendMsgToClient(conn rpc.RpcConn, value interface{}, fun string) bool {
 	return true
 }
 func (c *LobbyServicesForClient) onConn(conn rpc.RpcConn) {
-	/*
-		rep := rpc.LoginCnsInfo{}
-
-		cnsIp := pLobbyServices.getStableCns()
-		rep.CnsIp = &cnsIp
-		gasinfo := fmt.Sprintf("%s;%d", conn.GetRemoteIp(), time.Now().Unix())
-		logger.Info("Client(%s) -> lobb(%s)", conn.GetRemoteIp(), cnsIp)
-		// encode
-		encodeInfo := common.Base64Encode([]byte(gasinfo))
-
-		gasinfo = fmt.Sprintf("%s;%s", gasinfo, encodeInfo)
-
-		//fmt.Printf("%s \n", gasinfo)
-
-		rep.GsInfo = &gasinfo
-
-		SendMsgToClient(conn, &rep, "SRobot.LoginCnsInfo")
-	*/
 }
 
 func (c *LobbyServicesForClient) LobbyHandlePingMsg(conn rpc.RpcConn, msg rpc.CS_BetMsg) error {
-	logger.Debug("LobbyHandlePingMsg:recv ping\n")
-	/*
-		pongReq := rpc.Pong{}
-		pongReq.Id = msg.Id
-		pongReq.Count = msg.Count
-
-		SendMsgToClient(conn, &pongReq, "SRobot.HandlePongRsp")
-	*/
+	logger.Debug("LobbyHandlePingMsg:recv CS_BetMsg")
+	betRsp := rpc.SC_BetMsg{}
+	SendMsgToClient(conn, &betRsp, "hanfeng")
 	return nil
 }
