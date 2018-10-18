@@ -437,7 +437,7 @@ func (server *Server) readRequest(conn RpcConn) (service *service, mtype *method
 }
 
 func (server *Server) getRequest() *RequestWrap {
-	/*server.reqLock.Lock()
+	server.reqLock.Lock()
 	req := server.freeReq
 	if req == nil {
 		req = new(RequestWrap)
@@ -446,15 +446,15 @@ func (server *Server) getRequest() *RequestWrap {
 		*req = RequestWrap{}
 	}
 	server.reqLock.Unlock()
-	return req*/
-	return new(RequestWrap)
+	return req
+	//return new(RequestWrap)
 }
 
 func (server *Server) freeRequest(req *RequestWrap) {
-	/*server.reqLock.Lock()
+	server.reqLock.Lock()
 	req.next = server.freeReq
 	server.freeReq = req
-	server.reqLock.Unlock()*/
+	server.reqLock.Unlock()
 	req = nil
 }
 
