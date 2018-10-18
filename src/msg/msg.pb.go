@@ -8,14 +8,15 @@ It is generated from these files:
 	msg.proto
 
 It has these top-level messages:
-	Rpc
 	Request
-	Msg
-	SyncError
+	CS_BetMsg
+	SC_BetMsg
+	CS_LoginMsg
+	SC_LoginMsg
+	CS_PingMsg
+	SC_PingMsg
 	RpcErrorResponse
-	LoginCnsInfo
-	Ping
-	Pong
+	SyncError
 */
 package rpc
 
@@ -34,33 +35,16 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-type Rpc struct {
-	Request          []*Request `protobuf:"bytes,1,rep,name=request" json:"request,omitempty"`
-	XXX_unrecognized []byte     `json:"-"`
-}
-
-func (m *Rpc) Reset()                    { *m = Rpc{} }
-func (m *Rpc) String() string            { return proto.CompactTextString(m) }
-func (*Rpc) ProtoMessage()               {}
-func (*Rpc) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
-
-func (m *Rpc) GetRequest() []*Request {
-	if m != nil {
-		return m.Request
-	}
-	return nil
-}
-
 type Request struct {
-	Method            *string `protobuf:"bytes,1,req,name=method" json:"method,omitempty"`
-	SerializedRequest []byte  `protobuf:"bytes,2,opt,name=serialized_request,json=serializedRequest" json:"serialized_request,omitempty"`
+	Method            *string `protobuf:"bytes,1,req,name=Method" json:"Method,omitempty"`
+	SerializedRequest []byte  `protobuf:"bytes,2,req,name=Serialized_request,json=SerializedRequest" json:"Serialized_request,omitempty"`
 	XXX_unrecognized  []byte  `json:"-"`
 }
 
 func (m *Request) Reset()                    { *m = Request{} }
 func (m *Request) String() string            { return proto.CompactTextString(m) }
 func (*Request) ProtoMessage()               {}
-func (*Request) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+func (*Request) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
 func (m *Request) GetMethod() string {
 	if m != nil && m.Method != nil {
@@ -76,58 +60,95 @@ func (m *Request) GetSerializedRequest() []byte {
 	return nil
 }
 
-type Msg struct {
-	Code             *string `protobuf:"bytes,1,opt,name=code" json:"code,omitempty"`
-	Text             *string `protobuf:"bytes,2,opt,name=text" json:"text,omitempty"`
+// **************详细详细内容**********************************************
+type CS_BetMsg struct {
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *CS_BetMsg) Reset()                    { *m = CS_BetMsg{} }
+func (m *CS_BetMsg) String() string            { return proto.CompactTextString(m) }
+func (*CS_BetMsg) ProtoMessage()               {}
+func (*CS_BetMsg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+
+type SC_BetMsg struct {
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *SC_BetMsg) Reset()                    { *m = SC_BetMsg{} }
+func (m *SC_BetMsg) String() string            { return proto.CompactTextString(m) }
+func (*SC_BetMsg) ProtoMessage()               {}
+func (*SC_BetMsg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+
+type CS_LoginMsg struct {
+	UserName         *string `protobuf:"bytes,1,req,name=UserName" json:"UserName,omitempty"`
+	UserPass         *string `protobuf:"bytes,2,req,name=UserPass" json:"UserPass,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Msg) Reset()                    { *m = Msg{} }
-func (m *Msg) String() string            { return proto.CompactTextString(m) }
-func (*Msg) ProtoMessage()               {}
-func (*Msg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+func (m *CS_LoginMsg) Reset()                    { *m = CS_LoginMsg{} }
+func (m *CS_LoginMsg) String() string            { return proto.CompactTextString(m) }
+func (*CS_LoginMsg) ProtoMessage()               {}
+func (*CS_LoginMsg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
 
-func (m *Msg) GetCode() string {
-	if m != nil && m.Code != nil {
-		return *m.Code
+func (m *CS_LoginMsg) GetUserName() string {
+	if m != nil && m.UserName != nil {
+		return *m.UserName
 	}
 	return ""
 }
 
-func (m *Msg) GetText() string {
-	if m != nil && m.Text != nil {
-		return *m.Text
+func (m *CS_LoginMsg) GetUserPass() string {
+	if m != nil && m.UserPass != nil {
+		return *m.UserPass
 	}
 	return ""
 }
 
-type SyncError struct {
-	Text             *string `protobuf:"bytes,1,opt,name=text" json:"text,omitempty"`
+type SC_LoginMsg struct {
+	Uid              *uint64 `protobuf:"varint,1,req,name=Uid" json:"Uid,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *SyncError) Reset()                    { *m = SyncError{} }
-func (m *SyncError) String() string            { return proto.CompactTextString(m) }
-func (*SyncError) ProtoMessage()               {}
-func (*SyncError) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+func (m *SC_LoginMsg) Reset()                    { *m = SC_LoginMsg{} }
+func (m *SC_LoginMsg) String() string            { return proto.CompactTextString(m) }
+func (*SC_LoginMsg) ProtoMessage()               {}
+func (*SC_LoginMsg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
 
-func (m *SyncError) GetText() string {
-	if m != nil && m.Text != nil {
-		return *m.Text
+func (m *SC_LoginMsg) GetUid() uint64 {
+	if m != nil && m.Uid != nil {
+		return *m.Uid
 	}
-	return ""
+	return 0
 }
+
+type CS_PingMsg struct {
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *CS_PingMsg) Reset()                    { *m = CS_PingMsg{} }
+func (m *CS_PingMsg) String() string            { return proto.CompactTextString(m) }
+func (*CS_PingMsg) ProtoMessage()               {}
+func (*CS_PingMsg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
+
+type SC_PingMsg struct {
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *SC_PingMsg) Reset()                    { *m = SC_PingMsg{} }
+func (m *SC_PingMsg) String() string            { return proto.CompactTextString(m) }
+func (*SC_PingMsg) ProtoMessage()               {}
+func (*SC_PingMsg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
 
 type RpcErrorResponse struct {
-	Method           *string `protobuf:"bytes,1,req,name=method" json:"method,omitempty"`
-	Text             *string `protobuf:"bytes,2,req,name=text" json:"text,omitempty"`
+	Method           *string `protobuf:"bytes,1,req,name=Method" json:"Method,omitempty"`
+	Text             *string `protobuf:"bytes,2,req,name=Text" json:"Text,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
 func (m *RpcErrorResponse) Reset()                    { *m = RpcErrorResponse{} }
 func (m *RpcErrorResponse) String() string            { return proto.CompactTextString(m) }
 func (*RpcErrorResponse) ProtoMessage()               {}
-func (*RpcErrorResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+func (*RpcErrorResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
 
 func (m *RpcErrorResponse) GetMethod() string {
 	if m != nil && m.Method != nil {
@@ -143,111 +164,52 @@ func (m *RpcErrorResponse) GetText() string {
 	return ""
 }
 
-type LoginCnsInfo struct {
-	CnsIp            *string `protobuf:"bytes,1,req,name=cnsIp" json:"cnsIp,omitempty"`
-	GsInfo           *string `protobuf:"bytes,2,req,name=gsInfo" json:"gsInfo,omitempty"`
+type SyncError struct {
+	Text             *string `protobuf:"bytes,2,req,name=Text" json:"Text,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *LoginCnsInfo) Reset()                    { *m = LoginCnsInfo{} }
-func (m *LoginCnsInfo) String() string            { return proto.CompactTextString(m) }
-func (*LoginCnsInfo) ProtoMessage()               {}
-func (*LoginCnsInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
+func (m *SyncError) Reset()                    { *m = SyncError{} }
+func (m *SyncError) String() string            { return proto.CompactTextString(m) }
+func (*SyncError) ProtoMessage()               {}
+func (*SyncError) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
 
-func (m *LoginCnsInfo) GetCnsIp() string {
-	if m != nil && m.CnsIp != nil {
-		return *m.CnsIp
+func (m *SyncError) GetText() string {
+	if m != nil && m.Text != nil {
+		return *m.Text
 	}
 	return ""
-}
-
-func (m *LoginCnsInfo) GetGsInfo() string {
-	if m != nil && m.GsInfo != nil {
-		return *m.GsInfo
-	}
-	return ""
-}
-
-type Ping struct {
-	Id               *uint64 `protobuf:"varint,1,req,name=id" json:"id,omitempty"`
-	Count            *uint64 `protobuf:"varint,2,req,name=count" json:"count,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *Ping) Reset()                    { *m = Ping{} }
-func (m *Ping) String() string            { return proto.CompactTextString(m) }
-func (*Ping) ProtoMessage()               {}
-func (*Ping) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
-
-func (m *Ping) GetId() uint64 {
-	if m != nil && m.Id != nil {
-		return *m.Id
-	}
-	return 0
-}
-
-func (m *Ping) GetCount() uint64 {
-	if m != nil && m.Count != nil {
-		return *m.Count
-	}
-	return 0
-}
-
-type Pong struct {
-	Id               *uint64 `protobuf:"varint,1,req,name=id" json:"id,omitempty"`
-	Count            *uint64 `protobuf:"varint,2,req,name=count" json:"count,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *Pong) Reset()                    { *m = Pong{} }
-func (m *Pong) String() string            { return proto.CompactTextString(m) }
-func (*Pong) ProtoMessage()               {}
-func (*Pong) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
-
-func (m *Pong) GetId() uint64 {
-	if m != nil && m.Id != nil {
-		return *m.Id
-	}
-	return 0
-}
-
-func (m *Pong) GetCount() uint64 {
-	if m != nil && m.Count != nil {
-		return *m.Count
-	}
-	return 0
 }
 
 func init() {
-	proto.RegisterType((*Rpc)(nil), "rpc.Rpc")
 	proto.RegisterType((*Request)(nil), "rpc.Request")
-	proto.RegisterType((*Msg)(nil), "rpc.Msg")
-	proto.RegisterType((*SyncError)(nil), "rpc.SyncError")
+	proto.RegisterType((*CS_BetMsg)(nil), "rpc.CS_BetMsg")
+	proto.RegisterType((*SC_BetMsg)(nil), "rpc.SC_BetMsg")
+	proto.RegisterType((*CS_LoginMsg)(nil), "rpc.CS_LoginMsg")
+	proto.RegisterType((*SC_LoginMsg)(nil), "rpc.SC_LoginMsg")
+	proto.RegisterType((*CS_PingMsg)(nil), "rpc.CS_PingMsg")
+	proto.RegisterType((*SC_PingMsg)(nil), "rpc.SC_PingMsg")
 	proto.RegisterType((*RpcErrorResponse)(nil), "rpc.RpcErrorResponse")
-	proto.RegisterType((*LoginCnsInfo)(nil), "rpc.LoginCnsInfo")
-	proto.RegisterType((*Ping)(nil), "rpc.Ping")
-	proto.RegisterType((*Pong)(nil), "rpc.Pong")
+	proto.RegisterType((*SyncError)(nil), "rpc.SyncError")
 }
 
 func init() { proto.RegisterFile("msg.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 258 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x4e, 0x4f, 0x4b, 0xc3, 0x30,
-	0x14, 0x27, 0x5d, 0x75, 0xe4, 0x59, 0x44, 0x83, 0x48, 0x6f, 0x96, 0x1e, 0xa4, 0x07, 0xd7, 0x83,
-	0x67, 0xf1, 0x22, 0x1e, 0x06, 0x0a, 0xe3, 0xf9, 0x01, 0x44, 0xd2, 0x18, 0x03, 0x2e, 0x2f, 0x26,
-	0x1d, 0xa8, 0x9f, 0x5e, 0x9a, 0x64, 0x9b, 0x17, 0xc1, 0xdb, 0xfb, 0xfd, 0x7f, 0xc0, 0xd7, 0x41,
-	0xf7, 0xce, 0xd3, 0x48, 0x62, 0xe6, 0x9d, 0x6c, 0x17, 0x30, 0x43, 0x27, 0xc5, 0x25, 0xcc, 0xbd,
-	0xfa, 0xd8, 0xa8, 0x30, 0xd6, 0xac, 0x99, 0x75, 0x47, 0xd7, 0x55, 0xef, 0x9d, 0xec, 0x31, 0x71,
-	0xb8, 0x15, 0xdb, 0x15, 0xcc, 0x33, 0x27, 0xce, 0xe1, 0x70, 0xad, 0xc6, 0x37, 0x1a, 0x6a, 0xd6,
-	0x14, 0x1d, 0xc7, 0x8c, 0xc4, 0x02, 0x44, 0x50, 0xde, 0xbc, 0xbc, 0x9b, 0x6f, 0x35, 0x3c, 0x6f,
-	0x5b, 0x8b, 0x86, 0x75, 0x15, 0x9e, 0xee, 0x95, 0x5c, 0x33, 0x3d, 0xf0, 0x18, 0xb4, 0x10, 0x50,
-	0x4a, 0x1a, 0x54, 0xcd, 0x1a, 0xd6, 0x71, 0x8c, 0xf7, 0xc4, 0x8d, 0xea, 0x33, 0x65, 0x39, 0xc6,
-	0xbb, 0xbd, 0x00, 0xfe, 0xf4, 0x65, 0xe5, 0xbd, 0xf7, 0xe4, 0x77, 0x06, 0xf6, 0xcb, 0x70, 0x0b,
-	0x27, 0xe8, 0x92, 0x8e, 0x2a, 0x38, 0xb2, 0x41, 0xfd, 0xf9, 0xea, 0x7e, 0xa0, 0xd8, 0xe5, 0x6f,
-	0xa0, 0x7a, 0x20, 0x6d, 0xec, 0x9d, 0x0d, 0x4b, 0xfb, 0x4a, 0xe2, 0x0c, 0x0e, 0xa4, 0x0d, 0x4b,
-	0x97, 0xa3, 0x09, 0x4c, 0x8d, 0x3a, 0xea, 0x39, 0x9b, 0x51, 0x7b, 0x05, 0xe5, 0xca, 0x58, 0x2d,
-	0x8e, 0xa1, 0x30, 0x69, 0xad, 0xc4, 0xc2, 0x0c, 0xb1, 0x85, 0x36, 0x36, 0x4d, 0x95, 0x98, 0x40,
-	0x74, 0xd3, 0x7f, 0xdd, 0x3f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x8f, 0xb8, 0xdb, 0x4c, 0xbb, 0x01,
-	0x00, 0x00,
+	// 233 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x8f, 0x31, 0x4f, 0xc3, 0x30,
+	0x14, 0x84, 0x45, 0x5a, 0x01, 0xb9, 0x64, 0x28, 0x1e, 0x50, 0xc5, 0xd2, 0xca, 0x53, 0x17, 0xf8,
+	0x09, 0x0c, 0x58, 0xdd, 0x08, 0x8a, 0x6c, 0x3a, 0x47, 0x51, 0xfb, 0x64, 0x2c, 0xd1, 0x38, 0xf8,
+	0x19, 0x09, 0xf8, 0xf5, 0x28, 0x8d, 0xdb, 0x2e, 0xb0, 0xbd, 0x4f, 0x77, 0xba, 0xbb, 0x87, 0x7c,
+	0xcf, 0xf6, 0xa1, 0x0f, 0x3e, 0x7a, 0x31, 0x09, 0xfd, 0x56, 0xd6, 0xb8, 0xd2, 0xf4, 0xf1, 0x49,
+	0x1c, 0xc5, 0x2d, 0x2e, 0x2b, 0x8a, 0x6f, 0x7e, 0x37, 0xbf, 0x58, 0x66, 0xab, 0x5c, 0x27, 0x12,
+	0xf7, 0x10, 0x86, 0x82, 0x6b, 0xdf, 0xdd, 0x0f, 0xed, 0x9a, 0x30, 0xba, 0xe7, 0xd9, 0x32, 0x5b,
+	0x95, 0xfa, 0xe6, 0xac, 0xa4, 0x18, 0x59, 0x20, 0x57, 0xa6, 0x79, 0xa2, 0x58, 0xb1, 0x1d, 0xc0,
+	0xa8, 0x23, 0xac, 0x51, 0x28, 0xd3, 0x3c, 0x7b, 0xeb, 0xba, 0x8a, 0xad, 0xb8, 0xc3, 0xf5, 0x86,
+	0x29, 0xbc, 0xb4, 0x7b, 0x4a, 0x8d, 0x27, 0x3e, 0x6a, 0x75, 0xcb, 0x7c, 0x68, 0x4a, 0xda, 0xc0,
+	0x72, 0x81, 0xc2, 0xa8, 0x73, 0xcc, 0x0c, 0x93, 0x8d, 0x1b, 0x37, 0x4f, 0xf5, 0x70, 0xca, 0x12,
+	0x50, 0xa6, 0xa9, 0x5d, 0x67, 0x87, 0xd6, 0x12, 0x30, 0xea, 0x44, 0x8f, 0x98, 0xe9, 0x7e, 0xbb,
+	0x0e, 0xc1, 0x07, 0x4d, 0xdc, 0xfb, 0x8e, 0xe9, 0xdf, 0xc7, 0x05, 0xa6, 0xaf, 0xf4, 0x15, 0xd3,
+	0x80, 0xc3, 0x2d, 0x17, 0xc8, 0xcd, 0x77, 0x37, 0x06, 0xfc, 0x65, 0xf8, 0x0d, 0x00, 0x00, 0xff,
+	0xff, 0x63, 0x2e, 0xc1, 0xb2, 0x61, 0x01, 0x00, 0x00,
 }
