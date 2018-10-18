@@ -220,13 +220,17 @@ again:
 // Write implements the io.Writer interface:
 // it writes data as a frame to the WebSocket connection.
 func (ws *Conn) Write(msg []byte) (n int, err error) {
-	ws.wio.Lock()
-	defer ws.wio.Unlock()
-	w, err := ws.frameWriterFactory.NewFrameWriter(ws.PayloadType)
+	data, payloadType, err := marshal(msg)
 	if err != nil {
 		return 0, err
 	}
-	n, err = w.Write(msg)
+	ws.wio.Lock()
+	defer ws.wio.Unlock()
+	w, err := ws.frameWriterFactory.NewFrameWriter(payloadType)
+	if err != nil {
+		return 0, err
+	}
+	n, err = w.Write(data)
 	w.Close()
 	return n, err
 }
