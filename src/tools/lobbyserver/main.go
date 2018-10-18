@@ -52,15 +52,6 @@ func main() {
 
 	go lobbyserver.CreateLobbyServicesForCnserver(lobbyServer, listenerForServer)
 	go lobbyserver.CreateLobbyServicesForClient(ipcfg.LobbyIpForClient, "webConn")
-	/*
-		listenerForClient, err := net.Listen("tcp", ipcfg.LobbyIpForClient)
-		defer listenerForClient.Close()
-		if err != nil {
-			println("Listening to: ", ipcfg.LobbyIpForClient, " failed !!")
-			return
-		}
-		go lobbyserver.CreateLobbyServicesForClient(listenerForClient)
-	*/
 
 	handler := func(s os.Signal, arg interface{}) {
 		fmt.Printf("handle signal: %v\n", s)
