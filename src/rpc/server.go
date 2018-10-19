@@ -102,6 +102,7 @@ func (server *Server) StartServer(addr string, cType string) {
 	}
 }
 
+//webSocket
 func (server *Server) webConnHandler(conn *websocket.Conn) {
 	defer conn.Close()
 	logger.Debug("client connect lobby")
