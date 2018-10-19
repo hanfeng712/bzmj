@@ -114,7 +114,6 @@ func (conn *ProtoBufConn) ReadRequest(req *Request) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Recv Len:%d\n", size)
 	buf := make([]byte, size)
 
 	conn.c.SetReadDeadline(time.Now().Add(ConnReadTimeOut))
