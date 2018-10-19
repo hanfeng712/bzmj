@@ -86,7 +86,7 @@ func isExportedOrBuiltinType(t reflect.Type) bool {
 func (server *Server) StartServer(addr string, cType string) {
 	if cType == connType.webSocket {
 		http.Handle("/", websocket.Handler(server.webConnHandler))
-		err := http.ListenAndServe(":7850", nil)
+		err := http.ListenAndServe(addr, nil)
 		if err != nil {
 			println("Listening to: ", addr, " failed !!")
 			return
