@@ -16,11 +16,6 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-const (
-	ConnReadTimeOut  = 5e9
-	ConnWriteTimeOut = 5e9
-)
-
 type ProtoBufConn struct {
 	c            net.Conn
 	id           uint64
