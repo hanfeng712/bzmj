@@ -14,11 +14,9 @@ import (
 	"sync/atomic"
 	"unicode"
 	"unicode/utf8"
-)
 
-// Precompute the reflect type for error.  Can't use error directly
-// because Typeof takes an empty interface value.  This is annoying.
-var typeOfError = reflect.TypeOf((*error)(nil)).Elem()
+	"golang.org/x/net/websocket"
+)
 
 type methodType struct {
 	sync.Mutex // protects counters
@@ -83,6 +81,48 @@ func isExportedOrBuiltinType(t reflect.Type) bool {
 	// PkgPath will be non-empty even for an exported type,
 	// so we need to check the type name as well.
 	return isExported(t.Name()) || t.PkgPath() == ""
+}
+
+func (server *Server) StartServer(addr string, cType string) {
+	if cType == connType.webSocket {
+		http.Handle("/", websocket.Handler(server.webConnHandler))
+		err := http.ListenAndServe(":7850", nil)
+		if err != nil {
+			println("Listening to: ", addr, " failed !!")
+			return
+		}
+	} else if cType == connType.tcpSocket {
+		listenerForClient, err := net.Listen("tcp", addr)
+		defer listenerForClient.Close()
+		if err != nil {
+			println("Listening to: ", addr, " failed !!")
+			return
+		}
+		server.tcpConnHandler(listenerForClient)
+	}
+}
+
+func (server *Server) webConnHandler(conn *websocket.Conn) {
+	defer conn.Close()
+	logger.Debug("client connect lobby")
+	rpcConn := NewProtoBufConn(server, conn, 4, 0, false)
+	server.ServeConn(rpcConn)
+}
+
+//tcpScoket
+func (server *Server) tcpConnHandler(listener net.Listener) {
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			logger.Error("gateserver StartServices %s", err.Error())
+			break
+		}
+		go func() {
+			logger.Debug("client connect lobby")
+			rpcConn := NewProtoBufConn(server, conn, 4, 0, false)
+			server.ServeConn(rpcConn)
+		}()
+	}
 }
 
 func (server *Server) RegCallBackOnConn(cb func(conn RpcConn)) {
