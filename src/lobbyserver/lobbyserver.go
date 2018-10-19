@@ -171,14 +171,14 @@ func CreateLobbyServicesForClient(addr string, connType string) *LobbyServicesFo
 		},
 	)
 
-	if connType == "webConn" {
+	if connType == common.ConnectType.WebSocket {
 		http.Handle("/", websocket.Handler(webConnHandler))
 		err := http.ListenAndServe(":7850", nil)
 		if err != nil {
 			println("Listening to: ", addr, " failed !!")
 			return nil
 		}
-	} else if connType == "tcpConn" {
+	} else if connType == common.ConnectType.TcpSocket {
 		listenerForClient, err := net.Listen("tcp", addr)
 		defer listenerForClient.Close()
 		if err != nil {
