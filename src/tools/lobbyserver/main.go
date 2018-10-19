@@ -51,7 +51,7 @@ func main() {
 	}
 
 	go lobbyserver.CreateLobbyServicesForCnserver(lobbyServer, listenerForServer)
-	go lobbyserver.CreateLobbyServicesForClient(ipcfg.LobbyIpForClient, "webConn")
+	go lobbyserver.CreateLobbyServicesForClient(ipcfg.LobbyIpForClient, ipcfg.ConnectType)
 
 	handler := func(s os.Signal, arg interface{}) {
 		fmt.Printf("handle signal: %v\n", s)
