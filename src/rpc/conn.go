@@ -123,14 +123,16 @@ func (conn *ProtoBufConn) ReadRequest(req *Request) error {
 	if err != nil {
 		return err
 	}
-	/*
-		dst, err := snappy.Decode(nil, buf)
+
+	dst := buf
+	if conn.isCompression == true {
+		dst, err = snappy.Decode(nil, buf)
 
 		if err != nil {
 			return err
 		}
-	*/
-	dst := buf
+	}
+
 	if conn.isCompression == true {
 		dst, err = snappy.Decode(nil, buf)
 
