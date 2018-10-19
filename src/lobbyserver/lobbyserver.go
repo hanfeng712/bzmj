@@ -175,7 +175,7 @@ func CreateLobbyServicesForClient(addr string, connType string) *LobbyServicesFo
 func (c *LobbyServicesForClient) LobbyHandlePingMsg(conn rpc.RpcConn, msg rpc.CS_BetMsg) error {
 	logger.Debug("LobbyHandlePingMsg:recv CS_BetMsg")
 	betRsp := rpc.SC_BetMsg{}
-	SendMsgToClient(conn, &betRsp, "hanfeng")
+	SendMsgToClient(conn, &betRsp, "helloword")
 	return nil
 }
 
