@@ -12,11 +12,9 @@ import (
 	//	"strconv"
 	"common"
 	"dbclient"
-	"net/http"
+	//	"net/http"
 	"sync"
 	//"time"
-
-	"golang.org/x/net/websocket"
 )
 
 type serverInfo struct {
@@ -170,61 +168,15 @@ func CreateLobbyServicesForClient(addr string, connType string) *LobbyServicesFo
 			lobbyServicesForClient.onConn(conn)
 		},
 	)
-
-	if connType == common.ConnectType.WebSocket {
-		http.Handle("/", websocket.Handler(webConnHandler))
-		err := http.ListenAndServe(":7850", nil)
-		if err != nil {
-			println("Listening to: ", addr, " failed !!")
-			return nil
-		}
-	} else if connType == common.ConnectType.TcpSocket {
-		listenerForClient, err := net.Listen("tcp", addr)
-		defer listenerForClient.Close()
-		if err != nil {
-			println("Listening to: ", addr, " failed !!")
-			return nil
-		}
-		tcpConnHandler(listenerForClient)
-	}
-
+	rpcServer.StartServer(addr, connType)
 	return lobbyServicesForClient
 }
 
-//webSocket
-/*
-func webConnHandler(conn *websocket.Conn) {
-	for {
-		go func() {
-			logger.Debug("client connect lobby")
-			rpcConn := rpc.NewProtoBufConn(rpcServer, conn, 4, 0)
-			rpcServer.ServeConn(rpcConn)
-		}()
-	}
-}
-*/
-
-func webConnHandler(conn *websocket.Conn) {
-	defer conn.Close()
-	logger.Debug("client connect lobby")
-	rpcConn := rpc.NewProtoBufConn(rpcServer, conn, 4, 0, false)
-	rpcServer.ServeConn(rpcConn)
-}
-
-//tcpScoket
-func tcpConnHandler(listener net.Listener) {
-	for {
-		conn, err := listener.Accept()
-		if err != nil {
-			logger.Error("gateserver StartServices %s", err.Error())
-			break
-		}
-		go func() {
-			logger.Debug("client connect lobby")
-			rpcConn := rpc.NewProtoBufConn(rpcServer, conn, 4, 0, false)
-			rpcServer.ServeConn(rpcConn)
-		}()
-	}
+func (c *LobbyServicesForClient) LobbyHandlePingMsg(conn rpc.RpcConn, msg rpc.CS_BetMsg) error {
+	logger.Debug("LobbyHandlePingMsg:recv CS_BetMsg")
+	betRsp := rpc.SC_BetMsg{}
+	SendMsgToClient(conn, &betRsp, "hanfeng")
+	return nil
 }
 
 func WriteResult(conn rpc.RpcConn, value interface{}) bool {
@@ -242,11 +194,4 @@ func SendMsgToClient(conn rpc.RpcConn, value interface{}, fun string) bool {
 	return true
 }
 func (c *LobbyServicesForClient) onConn(conn rpc.RpcConn) {
-}
-
-func (c *LobbyServicesForClient) LobbyHandlePingMsg(conn rpc.RpcConn, msg rpc.CS_BetMsg) error {
-	logger.Debug("LobbyHandlePingMsg:recv CS_BetMsg")
-	betRsp := rpc.SC_BetMsg{}
-	SendMsgToClient(conn, &betRsp, "hanfeng")
-	return nil
 }
