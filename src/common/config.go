@@ -16,6 +16,7 @@ type LobbyServerCfg struct {
 	LobbyIpForClient string
 	LobbyIpForServer string
 	DebugHost        string
+	ConnectType      string
 	GcTime           uint8
 
 	MainCacheProfile CacheConfig `json:"maincache"`
